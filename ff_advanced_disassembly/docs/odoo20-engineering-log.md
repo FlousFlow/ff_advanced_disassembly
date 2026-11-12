@@ -146,3 +146,12 @@ and the allocation engine distributes the amount across usable outputs using
 the existing reference weights. The old percentage field remains hidden and is
 used only as a compatibility fallback for records created before this change.
 
+### 2026-11-12 — Standard Odoo permissions and form layout
+
+The output cost value now uses direct fields in the inherited Odoo form group, so
+the monetary value stays beside its label instead of expanding across the sheet.
+Operational access is granted by `mrp.group_mrp_user`, manager-only reversal and
+configuration actions use `mrp.group_mrp_manager`, and valuation details use the
+native Accounting user role. The original addon groups remain only as migration
+compatibility aliases for existing databases.
+

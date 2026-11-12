@@ -159,13 +159,18 @@ Before executing real-time valuation, also verify the standard Odoo setup:
 
 ## Security and permissions
 
-The module defines three groups with least-privilege inheritance:
+The module follows Odoo 20's standard Manufacturing and Accounting roles:
 
-| Group | Purpose |
+| Standard Odoo role | Purpose |
 |---|---|
-| Advanced Disassembly User | Create and operate advanced disassembly documents |
-| Advanced Disassembly Cost Viewer | View source, output, and valuation amounts |
-| Advanced Disassembly Administrator | Configure the module, reverse operations, and manage controlled accounting actions |
+| Manufacturing User (`mrp.group_mrp_user`) | Create and operate advanced disassembly documents |
+| Manufacturing Administrator (`mrp.group_mrp_manager`) | Configure the module and reverse completed operations |
+| Accounting User (`account.group_account_user`) | View source, output, and valuation amounts |
+
+The original Advanced Disassembly groups remain only as compatibility aliases
+for databases upgraded from an earlier release. New users should be assigned
+the standard Odoo roles above, so access behaves consistently with other Odoo
+20 Manufacturing screens.
 
 Completed and reversed operations are immutable. Reversal creates new linked
 records, preserving the audit trail.

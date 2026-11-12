@@ -1,4 +1,6 @@
 <odoo>
+    <!-- Legacy IDs are kept for upgraded databases; new access is granted by
+         Odoo's native Manufacturing and Accounting groups in the ACLs/views. -->
     <record id="group_ff_disassembly_user" model="res.groups">
         <field name="name">Advanced Disassembly User</field>
         <field name="implied_ids" eval="[(4, ref('mrp.group_mrp_user'))]"/>

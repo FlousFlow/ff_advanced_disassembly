@@ -284,7 +284,7 @@ class RecoveryOperation(models.Model):
 
     def action_recognize_loss(self):
         self.ensure_one()
-        if not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_administrator"):
+        if not self._has_financial_access():
             raise UserError(_("Only disassembly administrators can recognize documented losses."))
         if self.state != "done":
             raise UserError(_("Only completed operations can recognize a documented loss."))
@@ -313,7 +313,7 @@ class RecoveryOperation(models.Model):
         """Create a controlled stock reversal; never edit a completed move in place."""
         self.ensure_one()
         self._check_operational_access()
-        if not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_administrator"):
+        if not self._has_manager_access():
             raise UserError(_("Only disassembly administrators can reverse completed operations."))
         if self.state != "done":
             raise UserError(_("Only completed recovery operations can be reversed."))
@@ -366,8 +366,29 @@ class RecoveryOperation(models.Model):
         })
         return True
 
+    def _has_operational_access(self):
+        return any(self.env.user.has_group(group) for group in (
+            "mrp.group_mrp_user",
+            "ff_advanced_disassembly.group_ff_disassembly_user",
+        ))
+
+    def _has_manager_access(self):
+        return any(self.env.user.has_group(group) for group in (
+            "mrp.group_mrp_manager",
+            "ff_advanced_disassembly.group_ff_disassembly_administrator",
+        ))
+
+    def _has_financial_access(self):
+        return any(self.env.user.has_group(group) for group in (
+            "account.group_account_user",
+            "account.group_account_manager",
+            "mrp.group_mrp_manager",
+            "ff_advanced_disassembly.group_ff_disassembly_cost_viewer",
+            "ff_advanced_disassembly.group_ff_disassembly_administrator",
+        ))
+
     def _check_operational_access(self):
-        if not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_user"):
+        if not self._has_operational_access():
             raise UserError(_("You are not allowed to operate recovery operations."))
 
     def _validate_operation(self):

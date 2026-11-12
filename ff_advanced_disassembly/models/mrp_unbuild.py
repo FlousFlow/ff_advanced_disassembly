@@ -50,14 +50,14 @@ class MrpUnbuild(models.Model):
         compute="_compute_ff_available_lot_ids",
         help="Lots or serials with available stock for the selected product and source location.",
     )
-    ff_source_carrying_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
-    ff_allocated_asset_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
-    ff_allocated_loss_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
-    ff_actual_output_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
-    ff_actual_loss_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
-    ff_valuation_difference = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
+    ff_source_carrying_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
+    ff_allocated_asset_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
+    ff_allocated_loss_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
+    ff_actual_output_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
+    ff_actual_loss_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
+    ff_valuation_difference = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
     company_currency_id = fields.Many2one(related="company_id.currency_id")
-    ff_cost_ids = fields.One2many("ff.disassembly.cost", "unbuild_id", readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
+    ff_cost_ids = fields.One2many("ff.disassembly.cost", "unbuild_id", readonly=True, groups="account.group_account_user,mrp.group_mrp_manager")
     ff_event_ids = fields.One2many("ff.disassembly.event", "unbuild_id", readonly=True)
     ff_execution_key = fields.Char(copy=False, readonly=True, index=True)
     ff_executed_at = fields.Datetime(copy=False, readonly=True)
@@ -77,7 +77,7 @@ class MrpUnbuild(models.Model):
     ff_reversed_by = fields.Many2one("res.users", readonly=True, copy=False)
 
     def write(self, vals):
-        if "ff_advanced_mode" in vals and not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_user"):
+        if "ff_advanced_mode" in vals and not self._ff_has_operational_access():
             raise UserError(_("You are not allowed to enable advanced disassembly."))
         protected_fields = {
             "ff_workflow_state", "ff_execution_key", "ff_executed_at", "ff_executed_by",
@@ -516,7 +516,7 @@ class MrpUnbuild(models.Model):
         """Create stock and accounting reversals without editing posted records."""
         self.ensure_one()
         self._ff_check_operational_access()
-        if not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_administrator"):
+        if not self._ff_has_manager_access():
             raise UserError(_("Only disassembly administrators can reverse completed operations."))
         if self.state != "done" or self.ff_workflow_state != "done":
             raise UserError(_("Only completed advanced disassembly operations can be reversed."))
@@ -611,8 +611,22 @@ class MrpUnbuild(models.Model):
         })
         return True
 
+    def _ff_has_operational_access(self):
+        """Use Odoo's Manufacturing role; keep the old addon group as a bridge."""
+        return any(self.env.user.has_group(group) for group in (
+            "mrp.group_mrp_user",
+            "ff_advanced_disassembly.group_ff_disassembly_user",
+        ))
+
+    def _ff_has_manager_access(self):
+        """Reverse/configure actions follow the standard Manufacturing administrator role."""
+        return any(self.env.user.has_group(group) for group in (
+            "mrp.group_mrp_manager",
+            "ff_advanced_disassembly.group_ff_disassembly_administrator",
+        ))
+
     def _ff_check_operational_access(self):
-        if not self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_user"):
+        if not self._ff_has_operational_access():
             raise UserError(_("You are not allowed to operate advanced disassembly orders."))
 
     def _ff_consume_source(self):

@@ -102,7 +102,10 @@ Before clicking **Validate Inspection** or **Validate**:
 
 - Review the company Advanced Disassembly settings.
 - Decide whether a shared valuation-difference account is required.
-- Grant Cost Viewer only to users who need monetary valuation details.
-- Grant Administrator only to users who can reverse operations or configure
-  controlled financial actions.
+- Assign **Manufacturing User** to operators who create and execute operations.
+- Assign **Manufacturing Administrator** only to users who configure the module
+  or reverse completed operations.
+- Assign **Accounting User** to users who need monetary valuation details.
+- Legacy Advanced Disassembly groups are migration aliases; do not use them for
+  new user provisioning.
 - Test the workflow on a duplicated database before production use.
