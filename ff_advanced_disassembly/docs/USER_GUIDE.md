@@ -24,10 +24,11 @@ make:
   with available quantity in the source location, so unrelated products and
   empty lots cannot be selected.
 - **Disassembly Type**: Full or Partial.
-- **Recovered Value Percentage**: one percentage for the whole operation, not a
-  repeated percentage on every output line.
+- **Output Cost Value**: one company-currency amount for the whole operation.
+  This is the total value assigned to the recovered output products; it is not
+  repeated or entered on every output line.
 - **Expected Cost Difference**: a read-only estimate of the unrecovered source
-  value.
+  value (`source carrying value - output cost value`).
 - **Component Inspection**: the editable component/output table.
 
 When the product and a completed Manufacturing Order or BoM are selected, the
@@ -54,8 +55,8 @@ Draft → Inspection → Ready → Executing → Done
 ## Result conditions
 
 - **Good**: usable output at the recovered destination.
-- **Repairable**: output is physically recovered but the operation's recovery
-  percentage leaves a valuation difference.
+- **Repairable**: output is physically recovered but the operation's output cost
+  value leaves a valuation difference.
 - **Scrap**: physically recovered scrap handled through a native stock move.
 - **Missing**: expected quantity not physically recovered; no receiving
   destination is allowed.

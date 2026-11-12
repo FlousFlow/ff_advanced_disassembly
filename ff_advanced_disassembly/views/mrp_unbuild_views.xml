@@ -38,12 +38,12 @@
                 <group>
                     <field name="ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_user"/>
                     <field name="ff_disassembly_type" invisible="not ff_advanced_mode" help="كامل يفك المنتج بالكامل، وجزئي يحتفظ بجزء منه كمنتج متبقٍ."/>
-                    <label for="ff_recovery_percentage" string="نسبة القيمة المستردة للعملية" invisible="not ff_advanced_mode"/>
+                    <field name="ff_recovery_percentage" invisible="1"/>
+                    <label for="ff_output_cost_value" string="قيمة تكلفة المخرجات" invisible="not ff_advanced_mode"/>
                     <div class="o_row" invisible="not ff_advanced_mode">
-                        <field name="ff_recovery_percentage" widget="float" help="نسبة واحدة لكل المخرجات. الباقي يُسجل كفاقد تقييم."/>
-                        <span>%</span>
+                        <field name="ff_output_cost_value" widget="monetary" options="{'currency_field': 'company_currency_id'}" help="إجمالي القيمة النقدية التي ستُحمّل على المنتجات الناتجة من أمر التفكيك."/>
                     </div>
-                    <field name="ff_expected_cost_difference" string="فرق التكلفة المتوقع" widget="monetary" class="text-end" style="display: flex; justify-content: flex-end;" invisible="not ff_advanced_mode" readonly="1" help="القيمة التقديرية لفرق التكلفة = قيمة المنتج المصدر × (100٪ - نسبة القيمة المستردة)."/>
+                    <field name="ff_expected_cost_difference" string="فرق التكلفة المتوقع" widget="monetary" class="text-end" style="display: flex; justify-content: flex-end;" invisible="not ff_advanced_mode" readonly="1" help="قيمة المنتج المصدر ناقص قيمة تكلفة المخرجات المدخلة."/>
                     <field name="ff_workflow_state" widget="badge" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                     <field name="ff_return_picking_id" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                 </group>
@@ -61,7 +61,7 @@
                                 <field name="output_destination_location_id" string="وجهة التخزين"/>
                             </list>
                             <form>
-                                <div class="text-muted mb-2">افتح السطر لتحديد المنتج الناتج والكمية ونسبة القيمة المستردة. يوزع النظام قيمة المنتج الأصلي تلقائيًا على المخرجات.</div>
+                                <div class="text-muted mb-2">افتح السطر لتحديد المنتج الناتج والكمية. أدخل قيمة تكلفة المخرجات مرة واحدة في أعلى العملية، ويوزع النظام هذه القيمة تلقائيًا على المخرجات.</div>
                                 <group>
                                     <field name="product_id" readonly="1"/>
                                     <field name="uom_id"/>
@@ -71,7 +71,6 @@
                                         <field name="product_id" string="المنتج الناتج"/>
                                         <field name="condition" string="الحالة"/>
                                         <field name="quantity" string="الكمية"/>
-                                        <field name="recovery_factor" string="نسبة القيمة المستردة" widget="percentage" help="100% تعني استرداد قيمة كاملة، وأي نسبة أقل تسجل الفرق كفاقد تكلفة."/>
                                         <field name="destination_location_id" string="وجهة التخزين"/>
                                         <field name="lot_id" optional="hide"/>
                                     </list>

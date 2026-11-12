@@ -14,6 +14,17 @@ class MrpUnbuild(models.Model):
         string="Recovered Value Percentage", default=100.0, digits=(16, 4),
         help="One percentage for the whole operation. The remaining percentage is allocated as valuation loss.",
     )
+    ff_output_cost_value = fields.Monetary(
+        string="Output Cost Value",
+        currency_field="company_currency_id",
+        default=0.0,
+        copy=False,
+        help=(
+            "Total value to assign to the physically recovered output products. "
+            "The remaining source carrying value is posted as the disassembly valuation difference."
+        ),
+    )
+    ff_output_cost_value_manual = fields.Boolean(copy=False, default=False)
     ff_expected_cost_difference = fields.Monetary(
         string="Expected Cost Difference",
         compute="_compute_ff_expected_cost_difference",
@@ -79,7 +90,14 @@ class MrpUnbuild(models.Model):
             protected = set(vals) - {"message_follower_ids", "activity_ids"}
             if protected:
                 raise UserError(_("Completed advanced disassembly records are immutable."))
+        mark_output_value_manual = "ff_output_cost_value" in vals and not self.env.context.get("ff_internal_write")
         result = super().write(vals)
+        if mark_output_value_manual:
+            for order in self.filtered(lambda record: not record.ff_output_cost_value_manual):
+                if not order.company_id.currency_id.is_zero(
+                    order.ff_output_cost_value - order._ff_estimated_source_value()
+                ):
+                    order.with_context(ff_internal_write=True).write({"ff_output_cost_value_manual": True})
         return result
 
     @api.depends("product_id", "location_id", "company_id")
@@ -132,22 +150,47 @@ class MrpUnbuild(models.Model):
             if commands:
                 order.ff_line_ids = commands
 
-    @api.onchange("ff_recovery_percentage")
-    def _onchange_ff_recovery_percentage(self):
+    @api.onchange("product_id", "product_qty", "uom_id", "company_id")
+    def _onchange_ff_output_cost_value_default(self):
+        """Show a safe full-value default until the user enters an explicit amount."""
         for order in self:
-            percentage = min(max(order.ff_recovery_percentage, 0.0), 100.0) / 100.0
-            for result in order.ff_line_ids.mapped("result_ids"):
-                result.recovery_factor = percentage
-                result.condition = "repairable" if percentage < 1.0 else "good"
+            if not order.ff_output_cost_value_manual:
+                order.ff_output_cost_value = order._ff_estimated_source_value()
 
-    @api.constrains("ff_recovery_percentage")
-    def _check_ff_recovery_percentage(self):
+    def _ff_estimated_source_value(self):
+        self.ensure_one()
+        if not self.product_id:
+            return 0.0
+        quantity = self.product_qty or 0.0
+        if self.uom_id and self.product_id.uom_id:
+            quantity = self.uom_id._compute_quantity(quantity, self.product_id.uom_id)
+        return max(0.0, quantity * self.product_id.with_company(self.company_id).standard_price)
+
+    def _ff_output_value_for_source(self, source_value):
+        """Return the explicit output value, with a legacy percentage fallback."""
+        self.ensure_one()
+        if self.ff_output_cost_value_manual:
+            return self.company_id.currency_id.round(max(self.ff_output_cost_value, 0.0))
+        # Existing records created before the numeric field was introduced keep
+        # their original percentage semantics until a user enters an amount.
+        return self.company_id.currency_id.round(
+            max(source_value, 0.0) * min(max(self.ff_recovery_percentage, 0.0), 100.0) / 100.0
+        )
+
+    @api.constrains("ff_recovery_percentage", "ff_output_cost_value")
+    def _check_ff_value_inputs(self):
         for order in self:
             if not 0.0 <= order.ff_recovery_percentage <= 100.0:
                 raise ValidationError(_("Recovered value percentage must be between 0 and 100."))
+            if order.ff_output_cost_value < 0.0:
+                raise ValidationError(_("Output cost value cannot be negative."))
+            source_value = order.ff_source_carrying_value or order._ff_estimated_source_value()
+            if source_value and order.ff_output_cost_value_manual and order.ff_output_cost_value > source_value:
+                raise ValidationError(_("Output cost value cannot exceed the source carrying value."))
 
     @api.depends(
         "product_id", "product_qty", "uom_id", "ff_recovery_percentage",
+        "ff_output_cost_value", "ff_output_cost_value_manual",
         "ff_source_carrying_value", "ff_workflow_state",
     )
     def _compute_ff_expected_cost_difference(self):
@@ -161,20 +204,26 @@ class MrpUnbuild(models.Model):
                 if order.uom_id and order.product_id.uom_id:
                     quantity = order.uom_id._compute_quantity(quantity, order.product_id.uom_id)
                 source_value = quantity * order.product_id.with_company(order.company_id).standard_price
-            unrecovered_ratio = max(0.0, 100.0 - order.ff_recovery_percentage) / 100.0
+            output_value = order._ff_output_value_for_source(source_value)
             order.ff_expected_cost_difference = order.company_id.currency_id.round(
-                max(source_value, 0.0) * unrecovered_ratio
+                max(0.0, source_value - output_value)
             )
 
-    def _ff_apply_recovery_percentage(self):
+    def _ff_apply_output_cost_value(self, source_value):
         self.ensure_one()
-        percentage = self.ff_recovery_percentage / 100.0
+        if self.company_id.currency_id.is_zero(source_value):
+            raise UserError(_("The source finished-product move has no carrying value; allocation cannot proceed."))
+        output_value = self._ff_output_value_for_source(source_value)
+        if output_value > source_value and not self.company_id.currency_id.is_zero(output_value - source_value):
+            raise ValidationError(_("Output cost value cannot exceed the source carrying value."))
+        percentage = min(max(output_value / source_value, 0.0), 1.0)
         results = self.ff_line_ids.mapped("result_ids")
         if results:
-            results.with_context(ff_internal_write=True).write({
-                "recovery_factor": percentage,
-                "condition": "repairable" if percentage < 1.0 else "good",
-            })
+            for result in results.filtered(lambda r: r.condition in ("good", "repairable")):
+                result.with_context(ff_internal_write=True).write({
+                    "recovery_factor": percentage,
+                    "condition": "repairable" if percentage < 1.0 else "good",
+                })
 
     def _ff_apply_reference_weights(self):
         """Derive technical allocation weights; users should not enter them."""
@@ -276,7 +325,6 @@ class MrpUnbuild(models.Model):
 
     def _ff_validate_operation(self, allow_executing=False):
         self.ensure_one()
-        self._ff_apply_recovery_percentage()
         self._ff_apply_reference_weights()
         if self.state == "done" or self.ff_workflow_state in ("done", "reversed") or (self.ff_workflow_state == "executing" and not allow_executing):
             raise UserError(_("This disassembly is already completed or executing."))
@@ -387,8 +435,7 @@ class MrpUnbuild(models.Model):
         # Actual stock/accounting reconciliation remains a hard postcondition below.
         source_move = self._ff_consume_source()
         source_value = abs(source_move.value)
-        if self.company_id.currency_id.is_zero(source_value):
-            raise UserError(_("The source finished-product move has no carrying value; allocation cannot proceed."))
+        self._ff_apply_output_cost_value(source_value)
         allocation = self.env["ff.disassembly.allocation"]._allocate(self, source_value)
         output_moves = self._ff_create_outputs(allocation)
         residual_move = self._ff_create_residual(allocation)
@@ -760,7 +807,15 @@ class MrpUnbuild(models.Model):
 
     @api.model_create_multi
     def create(self, vals_list):
+        vals_list = [dict(vals) for vals in vals_list]
         records = super().create(vals_list)
+        if not self.env.context.get("ff_internal_write"):
+            for record, vals in zip(records, vals_list):
+                if "ff_output_cost_value" in vals and not record.ff_output_cost_value_manual:
+                    if not record.company_id.currency_id.is_zero(
+                        record.ff_output_cost_value - record._ff_estimated_source_value()
+                    ):
+                        record.with_context(ff_internal_write=True).write({"ff_output_cost_value_manual": True})
         for record in records.filtered("ff_advanced_mode"):
             record._ff_log("created", _("Advanced disassembly order created."))
         return records

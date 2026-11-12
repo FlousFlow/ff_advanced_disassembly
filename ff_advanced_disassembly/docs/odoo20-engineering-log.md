@@ -137,3 +137,12 @@ that availability list from `stock.quant`; no custom lot model or core patch is
 introduced. Regression coverage verifies that a tracked product exposes its
 available source lot and an untracked product exposes none.
 
+### 2026-11-12 — Operation-level numeric output valuation
+
+Replaced the normal operator input from a recovered-value percentage to one
+company-currency output cost value for the whole advanced disassembly. The
+expected difference is calculated as source carrying value minus that amount,
+and the allocation engine distributes the amount across usable outputs using
+the existing reference weights. The old percentage field remains hidden and is
+used only as a compatibility fallback for records created before this change.
+

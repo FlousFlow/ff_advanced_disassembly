@@ -25,8 +25,7 @@ replacing the standard Odoo flow when advanced mode is disabled.
 | Supported language | English and Arabic translation included |
 
 The repository is intentionally a dedicated single-addon repository. The addon
-is under the `ff_advanced_disassembly/` folder at the repository root, as
-required by the Odoo Apps scanner, and the supported Git ref is `20.0`.
+is at the repository root and the supported Git ref is `20.0`.
 
 ## Main capabilities
 
@@ -42,12 +41,12 @@ required by the Odoo Apps scanner, and the supported Git ref is `20.0`.
 - Select **Full** or **Partial** disassembly.
 - Auto-load component lines from a completed Manufacturing Order or the selected
   Bill of Materials as soon as the product and source are available.
-- Edit the output product, output quantity, recovery percentage, destination,
-  lot, or serial before validation.
+- Edit the output product, output quantity, destination, lot, or serial before
+  validation. Enter the total output cost value once at operation level.
 - Add a different product SKU when a component is transformed into another item.
 - Mark outcomes as good, repairable, scrap, missing, or retained.
 - Show the expected cost difference immediately from the source carrying value
-  estimate and the operation recovery percentage.
+  estimate and the operation output cost value.
 - Validate an inspection, then execute the stock operation through native stock
   moves.
 - Keep completed records immutable and expose an administrator-only reversal
@@ -72,7 +71,8 @@ component list.
 - Enter actual output products and quantities before execution.
 - Classify outputs as usable, secondary, or waste and assign internal
   destinations.
-- Use a single recoverable-value percentage or a target amount.
+- Enter a single output cost value for the operation; the remaining source value
+  becomes the valuation difference.
 - Execute and reverse through linked native stock moves.
 
 ## Recommended workflow
@@ -87,8 +87,8 @@ component list.
 4. In **Component Inspection**, set the actual output product, quantity, and
    internal destination. Add a result line when a component splits into more
    than one outcome.
-5. Set the operation-level recovered-value percentage. The remaining percentage
-   is the expected valuation difference/loss.
+5. Set the operation-level output cost value. The remaining source carrying
+   value is the expected valuation difference/loss.
 6. Click **Validate Inspection**. The order moves to Ready after quantities,
    locations, tracking, and valuation rules pass validation.
 7. Click **Execute Disassembly**. Odoo creates the source/output stock moves
@@ -210,7 +210,7 @@ corrective operation rather than rewriting posted stock or accounting history.
 git clone --branch 20.0 \
   ssh://git@github.com/FlousFlow/ff_advanced_disassembly.git
 
-# Add the cloned repository directory to --addons-path, then:
+# Add the cloned directory to --addons-path, then:
 ./odoo-bin -d my_database -i ff_advanced_disassembly
 ```
 
@@ -263,5 +263,5 @@ the reversal workflow and a new traceable operation.
 ## Repository and release
 
 This is a dedicated single-addon repository. The supported branch is `20.0`,
-the manifest version is `20.0.1.0.4`, and generated caches/local runtime files
+the manifest version is `20.0.1.0.5`, and generated caches/local runtime files
 are excluded from Git.

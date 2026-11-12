@@ -27,10 +27,9 @@ Observed result: `0 failed, 0 error(s) of 19 post-tests` (29 Odoo-reported tests
 ## Release status
 
 The addon is packaged as a dedicated public GitHub repository at
-`FlousFlow/ff_advanced_disassembly`, with the addon under the
-`ff_advanced_disassembly/` folder on the `20.0` branch and version tag
-`20.0.1.0.4`. The cover image and expanded Apps description are included in
-`ff_advanced_disassembly/static/description/`. A clean clone of the GitHub
+`FlousFlow/ff_advanced_disassembly`, with the addon at repository root on the
+`20.0` branch and version tag `20.0.1.0.5`. The cover image and expanded Apps
+description are included in `static/description/`. A clean clone of the GitHub
 branch was installed successfully on a disposable Odoo 20 database.
 
 The tested matrix passes on the local test chart; do not generalize that result

@@ -62,6 +62,40 @@ class TestAdvancedDisassembly(TransactionCase):
         })
         self.assertFalse(untracked_order.ff_available_lot_ids)
 
+    def test_numeric_output_cost_value_drives_difference_and_legacy_fallback(self):
+        product = self.env["product.product"].create({
+            "name": "Numeric Output Value Source",
+            "type": "consu",
+            "is_storable": True,
+            "standard_price": 15.0,
+        })
+        stock_location = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1,
+        ).lot_stock_id
+        order = self.env["mrp.unbuild"].create({
+            "product_id": product.id,
+            "product_qty": 1.0,
+            "company_id": self.env.company.id,
+            "location_id": stock_location.id,
+            "location_dest_id": stock_location.id,
+            "ff_advanced_mode": True,
+            "ff_output_cost_value": 10.0,
+        })
+        currency = self.env.company.currency_id
+        self.assertTrue(currency.is_zero(order.ff_output_cost_value - 10.0))
+        self.assertTrue(currency.is_zero(order.ff_expected_cost_difference - 5.0))
+        self.assertTrue(currency.is_zero(order._ff_output_value_for_source(15.0) - 10.0))
+
+        legacy_order = self.env["mrp.unbuild"].create({
+            "product_id": product.id,
+            "product_qty": 1.0,
+            "company_id": self.env.company.id,
+            "location_id": stock_location.id,
+            "location_dest_id": stock_location.id,
+            "ff_advanced_mode": True,
+        })
+        self.assertTrue(currency.is_zero(legacy_order._ff_output_value_for_source(15.0) - 15.0))
+
     def test_allocation_includes_assets_residual_and_losses(self):
         currency = self.env.company.currency_id
         good = SimpleNamespace(condition="good", reference_weight=400.0, recovery_factor=1.0)
