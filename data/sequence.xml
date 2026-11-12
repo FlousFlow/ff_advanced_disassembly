@@ -1,0 +1,16 @@
+<odoo>
+    <record id="seq_ff_recovery_operation" model="ir.sequence">
+        <field name="name">Recovery Operation</field>
+        <field name="code">ff.recovery.operation</field>
+        <field name="prefix">REC/</field>
+        <field name="padding">5</field>
+        <field name="company_id" eval="False"/>
+    </record>
+    <record id="seq_ff_recovery_execution" model="ir.sequence">
+        <field name="name">Recovery Execution Key</field>
+        <field name="code">ff.recovery.execution</field>
+        <field name="prefix">EXEC/</field>
+        <field name="padding">8</field>
+        <field name="company_id" eval="False"/>
+    </record>
+</odoo>

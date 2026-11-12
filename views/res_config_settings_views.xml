@@ -1,0 +1,31 @@
+<odoo>
+    <record id="res_config_settings_view_form_advanced_disassembly" model="ir.ui.view">
+        <field name="name">res.config.settings.advanced.disassembly</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="mrp.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//app[@name='mrp']/block[1]" position="inside">
+                <setting string="Advanced Disassembly" help="Configure partial disassembly and the approved allocation and destination policies.">
+                    <field name="ff_partial_disassembly_enabled"/>
+                    <div class="content-group">
+                        <field name="ff_require_manager_approval"/>
+                        <label for="ff_require_manager_approval"/>
+                    </div>
+                    <div class="content-group">
+                        <field name="ff_require_financial_loss_approval"/>
+                        <label for="ff_require_financial_loss_approval"/>
+                    </div>
+                    <div class="content-group">
+                        <label for="ff_disassembly_variance_account_id" string="حساب فرق تكلفة التفكيك"/>
+                        <field name="ff_disassembly_variance_account_id"
+                               domain="[('company_ids', 'in', [company_id])]"
+                               options="{'no_create': True}"
+                               help="اختياري: يطبق على كل عمليات التفكيك المتقدم في هذه الشركة. إذا تُرك فارغًا يُستخدم حساب فروق المخزون من فئة المنتج المصدر."/>
+                    </div>
+                    <field name="ff_disassembly_cost_policy"/>
+                    <field name="ff_disassembly_destination_policy"/>
+                </setting>
+            </xpath>
+        </field>
+    </record>
+</odoo>

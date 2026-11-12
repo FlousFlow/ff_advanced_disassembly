@@ -1,0 +1,77 @@
+<odoo>
+    <record id="mrp_unbuild_form_advanced_disassembly" model="ir.ui.view">
+        <field name="name">mrp.unbuild.form.advanced.disassembly</field>
+        <field name="model">mrp.unbuild</field>
+        <field name="inherit_id" ref="mrp.mrp_unbuild_form_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//header/button[@name='action_validate']" position="attributes">
+                <attribute name="invisible">state != 'draft' or ff_advanced_mode</attribute>
+            </xpath>
+            <xpath expr="//header" position="inside">
+                <button name="action_validate" string="Validate Inspection" type="object" class="oe_highlight" invisible="not ff_advanced_mode or ff_workflow_state != 'draft' or state == 'done'"/>
+                <button name="action_unbuild" string="Execute Disassembly" type="object" class="oe_highlight" invisible="not ff_advanced_mode or ff_workflow_state != 'ready' or state == 'done'"/>
+                <button name="action_reverse" string="عكس العملية" type="object" class="btn-secondary" confirm="سيتم إنشاء حركات مخزنية وقيد تقييم عكسي للعملية. هل تريد المتابعة؟" invisible="not ff_advanced_mode or state != 'done' or ff_workflow_state != 'done'" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="attributes">
+                <attribute name="invisible">ff_advanced_mode</attribute>
+            </xpath>
+            <xpath expr="//header/field[@name='state']" position="after">
+                <field name="ff_workflow_state" widget="statusbar"
+                       statusbar_visible="draft,inspection,ready,executing,done,reversed"
+                       invisible="not ff_advanced_mode" readonly="1"/>
+            </xpath>
+            <xpath expr="//field[@name='location_id']" position="attributes">
+                <attribute name="string">موقع المنتج المصدر</attribute>
+                <attribute name="groups">stock.group_stock_multi_locations,ff_advanced_disassembly.group_ff_disassembly_user</attribute>
+                <attribute name="help">الموقع المخزني الذي سيتم سحب المنتج المفكك منه.</attribute>
+            </xpath>
+            <xpath expr="//sheet/group" position="before">
+                <group>
+                    <field name="ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_user"/>
+                    <field name="ff_disassembly_type" invisible="not ff_advanced_mode" help="كامل يفك المنتج بالكامل، وجزئي يحتفظ بجزء منه كمنتج متبقٍ."/>
+                    <label for="ff_recovery_percentage" string="نسبة القيمة المستردة للعملية" invisible="not ff_advanced_mode"/>
+                    <div class="o_row" invisible="not ff_advanced_mode">
+                        <field name="ff_recovery_percentage" widget="float" help="نسبة واحدة لكل المخرجات. الباقي يُسجل كفاقد تقييم."/>
+                        <span>%</span>
+                    </div>
+                    <field name="ff_expected_cost_difference" string="فرق التكلفة المتوقع" widget="monetary" class="text-end" style="display: flex; justify-content: flex-end;" invisible="not ff_advanced_mode" readonly="1" help="القيمة التقديرية لفرق التكلفة = قيمة المنتج المصدر × (100٪ - نسبة القيمة المستردة)."/>
+                    <field name="ff_workflow_state" widget="badge" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
+                    <field name="ff_return_picking_id" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
+                </group>
+            </xpath>
+            <xpath expr="//sheet" position="inside">
+                <notebook invisible="not ff_advanced_mode">
+                    <page string="فحص المكونات والنواتج">
+                        <field name="ff_line_ids" readonly="state == 'done'">
+                            <list editable="bottom">
+                                <field name="sequence" widget="handle"/>
+                                <field name="product_id"/>
+                                <field name="uom_id"/>
+                                <field name="output_product_id" string="المنتج الناتج"/>
+                                <field name="output_quantity" string="الكمية الناتجة"/>
+                                <field name="output_destination_location_id" string="وجهة التخزين"/>
+                            </list>
+                            <form>
+                                <div class="text-muted mb-2">افتح السطر لتحديد المنتج الناتج والكمية ونسبة القيمة المستردة. يوزع النظام قيمة المنتج الأصلي تلقائيًا على المخرجات.</div>
+                                <group>
+                                    <field name="product_id" readonly="1"/>
+                                    <field name="uom_id"/>
+                                </group>
+                                <field name="result_ids">
+                                    <list editable="bottom">
+                                        <field name="product_id" string="المنتج الناتج"/>
+                                        <field name="condition" string="الحالة"/>
+                                        <field name="quantity" string="الكمية"/>
+                                        <field name="recovery_factor" string="نسبة القيمة المستردة" widget="percentage" help="100% تعني استرداد قيمة كاملة، وأي نسبة أقل تسجل الفرق كفاقد تكلفة."/>
+                                        <field name="destination_location_id" string="وجهة التخزين"/>
+                                        <field name="lot_id" optional="hide"/>
+                                    </list>
+                                </field>
+                            </form>
+                        </field>
+                    </page>
+                </notebook>
+            </xpath>
+        </field>
+    </record>
+</odoo>

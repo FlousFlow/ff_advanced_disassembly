@@ -1,0 +1,2177 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* ff_advanced_disassembly
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 20.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-11 13:46+0000\n"
+"PO-Revision-Date: 2026-11-11 13:46+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: \n"
+"Plural-Forms: \n"
+
+#. module: ff_advanced_disassembly
+#: model:ir.module.module,description:base.module_ff_advanced_disassembly
+msgid ""
+"# Flous Flow Advanced Disassembly\n"
+"\n"
+"Odoo 20 Community addon extending Manufacturing Unbuild with component inspection, per-result destinations, allocation records, audit events, and a residual assembly representation for partial disassembly. It also provides a native stock-move based Recovery Operation for recycling and hybrid disassembly/recycling workflows.\n"
+"\n"
+"## Compatibility and dependencies\n"
+"\n"
+"- Odoo 20.0 Community\n"
+"- `mrp`, `stock_account`, and `mail`\n"
+"- No Enterprise dependencies\n"
+"\n"
+"## Install\n"
+"\n"
+"Place this addon in an active Odoo addons path, update the Apps list, and install **Flous Flow Advanced Disassembly**. For command-line installation, include its parent directory in `--addons-path` and use `-i ff_advanced_disassembly`.\n"
+"\n"
+"## Configuration\n"
+"\n"
+"Manufacturing settings store company-scoped values. Defaults are partial disassembly enabled, manager approval disabled, financial loss approval disabled, allocated cost policy, and manual destinations. Changing settings does not rewrite completed order snapshots.\n"
+"\n"
+"Users need the Advanced Disassembly User group; the cost viewer and administrator groups provide additional cost and administration access.\n"
+"\n"
+"## Recycling and hybrid operations\n"
+"\n"
+"Use **Manufacturing → Recovery Operations** when the source product can be transformed into different products or when disassembly and recycling must be coordinated in one controlled operation. Inputs and actual outputs are editable before validation, output products may be selected dynamically, and each output can be classified as usable, secondary, or waste. Every physical quantity is posted through standard `stock.move` and `stock.move.line` records.\n"
+"\n"
+"The Recoverable Value policy supports a percentage of the source carrying value or a documented target amount. Values are allocated across usable outputs using explicit weights; recycling costs are captured as an operational field but are not silently capitalized or expensed. Loss recognition is deferred by default and requires an accounting account plus valuation evidence before a journal entry can be posted.\n"
+"\n"
+"## Full workflow\n"
+"\n"
+"Enable Advanced Disassembly on an Unbuild order, load components from a completed Manufacturing Order or the selected BoM, review the component snapshot, split each component into result quantities, assign lots and destinations, validate, and execute. Native Unbuild remains in use when Advanced Disassembly is disabled.\n"
+"\n"
+"## Partial workflow\n"
+"\n"
+"Choose Partial, classify retained component quantities, select a distinct residual product and internal destination, then validate and execute. The residual assembly is created as a separate stock move with a stored retained-component snapshot.\n"
+"\n"
+"## Destinations and traceability\n"
+"\n"
+"Good, repairable, and physically recovered scrap outcomes need a company-compatible internal destination. Missing and retained outcomes cannot have their own receiving location. Tracked recovered goods need a matching lot or serial. Source lot/serial is required for tracked finished products.\n"
+"\n"
+"## Cost allocation and accounting\n"
+"\n"
+"The addon allocates the source move's carrying value using the explicit reference weights on inspection results. Repairable results use the recorded recovery factor; residual assembly uses retained-result weights. Odoo 20's `product.value` API supplies manual move valuation for asset outputs. The source move and actual output move values are compared before completion.\n"
+"\n"
+"**Accounting validation status:** automated tests cover Standard, FIFO, and AVCO crossed with periodic and real-time valuation (six cases), including allocated-loss reconciliation and Odoo-generated real-time journal entries on the test chart. The suite also verifies rollback for a recovered-scrap valuation mismatch. Other localization charts and custom account configurations still need validation.\n"
+"\n"
+"Odoo 20 in the inspected checkout does not expose the legacy `stock.scrap` model. The implementation uses native `stock.move.is_scrap` for recovered-scrap disposal.\n"
+"\n"
+"## Tests\n"
+"\n"
+"Run the module tests on a dedicated database with Odoo's `--test-tags /ff_advanced_disassembly` runner. The automated suite covers default settings, allocation arithmetic, stock execution and exact stock deltas, missing/recovered scrap, valuation rollback, residual execution, MO component resolution, native Unbuild regression, immutability, audit visibility, cost access, tracked component lots/serials, company isolation, and the six-case accounting matrix. A separate shell smoke test covers concurrent execution claims. See `docs/QUALITY_GATES.md` for the exact run and evidence.\n"
+"\n"
+"## Upgrade notes\n"
+"\n"
+"Back up the database before upgrading. The addon adds fields to `mrp.unbuild` and creates component, result, residual, cost, and event records. Completed advanced orders are guarded against ordinary edits; corrections currently require a separately designed traceable corrective workflow.\n"
+"\n"
+"Recovery operations are likewise immutable after execution. The administrator-only **Reverse Operation** action creates new reversing stock moves linked to the original moves; it never edits a completed move in place. Optional recipe/yield master data, localization-specific accounting matrices for the new model, and browser/mobile regression evidence remain follow-up work before presenting the addon as a fully Apps-Store-complete recycling suite.\n"
+msgstr ""
+"إضافة تفكيك متقدم لـ Odoo 20 Community. توسع وظيفة تفكيك أوامر التصنيع بفحص المكونات وتحديد وجهة كل نتيجة وتسجيل التوزيعات والأحداث، مع تمثيل التجميعة المتبقية عند التفكيك الجزئي.\n"
+"\n"
+"التوافق: Odoo 20 Community، وتعتمد على mrp وstock_account وmail. لا تتطلب Enterprise.\n"
+"\n"
+"تستخدم الإضافة حركات المخزون الأصلية لاستلام المكونات واستهلاك المنتج المصدر وتسجيل الخردة. يدعم الإصدار الحالي تدفق التفكيك الكامل والجزئي، وتبقى تغطية التقييم المحاسبي حسب طرق التكلفة قيد التحقق.\n"
+"\n"
+"راجع README.md ودليل المعمارية وبوابات الجودة لمعرفة النطاق والقيود ونتائج الاختبار."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "A lot or serial is required for tracked inputs."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "A lot or serial is required for tracked outputs."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "A lot or serial is required for tracked recovered products."
+msgstr ""
+"يجب تحديد رقم التشغيلة أو الرقم التسلسلي للمنتجات المسترجعة الخاضعة للتتبع."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "A recovery recipe can only be applied to a draft operation."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"A residual lot or serial is required for the selected tracked residual "
+"product."
+msgstr "يجب تحديد رقم تشغيلة أو رقم تسلسلي للمنتج المتبقي الخاضع للتتبع."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__abnormal_loss_value
+msgid "Abnormal Loss Value"
+msgstr "قيمة الفاقد غير الطبيعي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_output__loss_class__abnormal
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_recipe_line__loss_class__abnormal
+msgid "Abnormal waste"
+msgstr "مخلفات غير طبيعية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__account_move_id
+msgid "Account Move"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_needaction
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_needaction
+msgid "Action Needed"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__active
+msgid "Active"
+msgstr "نشط"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_ids
+msgid "Activities"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_exception_decoration
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_exception_decoration
+msgid "Activity Exception Decoration"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_plans_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_plans_ids
+msgid "Activity Plans"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_state
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_state
+msgid "Activity State"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_type_icon
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_type_icon
+msgid "Activity Type Icon"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__actual_output_value
+msgid "Actual Output Value"
+msgstr "قيمة المخرجات الفعلية"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Actual Outputs"
+msgstr "المخرجات الفعلية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__actual_valuation_amount
+msgid "Actual Valuation Amount"
+msgstr "قيمة التقييم الفعلية"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Actual output stock valuation differs from planned allocation by %s."
+msgstr "يختلف تقييم المخزون الفعلي للمخرجات عن التوزيع المخطط بمقدار %s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Add at least one input product."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Add at least one output product."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_advanced_mode
+#: model:ir.module.module,shortdesc:base.module_ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.res_config_settings_view_form_advanced_disassembly
+msgid "Advanced Disassembly"
+msgstr "تفكيك متقدم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_disassembly_variance_account_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_disassembly_variance_account_id
+msgid "Disassembly Valuation Difference Account"
+msgstr "حساب فرق تكلفة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:res.groups,name:ff_advanced_disassembly.group_ff_disassembly_administrator
+msgid "Advanced Disassembly Administrator"
+msgstr "مسؤول التفكيك المتقدم"
+
+#. module: ff_advanced_disassembly
+#: model:res.groups,name:ff_advanced_disassembly.group_ff_disassembly_cost_viewer
+msgid "Advanced Disassembly Cost Viewer"
+msgstr "مطلع على تكاليف التفكيك المتقدم"
+
+#. module: ff_advanced_disassembly
+#: model:res.groups,name:ff_advanced_disassembly.group_ff_disassembly_user
+msgid "Advanced Disassembly User"
+msgstr "مستخدم التفكيك المتقدم"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Advanced disassembly order created."
+msgstr "تم إنشاء أمر التفكيك المتقدم."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "All original stock moves must be completed before reversal."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "All recovery locations must be company-compatible internal locations."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_cost_policy__allocated
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__res_company__ff_disassembly_cost_policy__allocated
+msgid "Allocated"
+msgstr "موزع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__allocated_amount
+msgid "Allocated Amount"
+msgstr "المبلغ الموزع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__allocated_loss_value
+msgid "Allocated Loss Value"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__allocated_output_value
+msgid "Allocated Output Value"
+msgstr "قيمة المخرجات الموزعة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__allocated_value
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__allocated_value
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__allocated_value
+msgid "Allocated Value"
+msgstr "القيمة الموزعة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Allocated disassembly value from %s"
+msgstr "قيمة التفكيك الموزعة من %s"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Allocated output value exceeds source carrying value."
+msgstr "تتجاوز قيمة المخرجات الموزعة القيمة الدفترية للمصدر."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Allocated recovered-scrap value from %s"
+msgstr "قيمة الخردة المستردة الموزعة من %s"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__allocation_ratio
+msgid "Allocation Ratio"
+msgstr "نسبة التوزيع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__allocation_weight
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__allocation_weight
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__allocation_weight
+msgid "Allocation Weight"
+msgstr "وزن التوزيع"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/services/allocation.py:0
+msgid "Allocation requires positive, documented eligible reference weights."
+msgstr "يتطلب التوزيع أوزانًا مرجعية مؤهلة وموجبة وموثقة."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Apply Recipe"
+msgstr "تطبيق الوصفة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "At least one usable output requires a positive allocation weight."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_attachment_count
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_attachment_count
+msgid "Attachment Count"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Audit Events"
+msgstr "سجل التدقيق"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_line__source_type__bom
+msgid "Bill of Materials"
+msgstr "قائمة المواد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__bom_line_id
+msgid "Bom Line"
+msgstr "بند قائمة المواد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__cancelled
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__cancelled
+msgid "Cancelled"
+msgstr "ملغي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__code
+msgid "Code"
+msgstr "الرمز"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_res_company
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__company_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__company_id
+msgid "Company"
+msgstr "الشركة "
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_search_view
+msgid "Completed"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Completed advanced disassembly records are immutable."
+msgstr "لا يمكن تعديل سجلات التفكيك المتقدم المكتملة."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Completed or executing component lines cannot be deleted."
+msgstr "لا يمكن حذف بنود المكونات أثناء التنفيذ أو بعد اكتماله."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Completed or executing component results cannot be deleted."
+msgstr "لا يمكن حذف نتائج المكونات أثناء التنفيذ أو بعد اكتماله."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Completed or executing orders cannot receive component lines."
+msgstr "لا يمكن إضافة بنود مكونات إلى أمر مكتمل أو قيد التنفيذ."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Completed or executing orders cannot receive component results."
+msgstr "لا يمكن إضافة نتائج مكونات إلى أمر مكتمل أو قيد التنفيذ."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Completed recovery operations are immutable."
+msgstr "عمليات الاسترداد المكتملة غير قابلة للتعديل."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Component %(product)s must be fully accounted for by result quantities."
+msgstr "يجب أن تغطي كميات النتائج كامل كمية المكون %(product)s."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Component Inspection"
+msgstr "فحص المكونات"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Component inspection is locked during and after execution."
+msgstr "تم قفل فحص المكونات أثناء التنفيذ وبعده."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Component inspection line %s changed."
+msgstr "تم تعديل بند فحص المكون %s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Component line for %(product)s was added."
+msgstr "تمت إضافة بند المكون %(product)s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Component loading is only available on a draft advanced disassembly."
+msgstr "يمكن تحميل المكونات فقط في أمر تفكيك متقدم بحالة مسودة أو فحص."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Component results are locked during and after execution."
+msgstr "تم قفل نتائج المكونات أثناء التنفيذ وبعده."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Component snapshot loaded from %s."
+msgstr "تم تحميل لقطة المكونات من %s."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__condition
+msgid "Condition"
+msgstr "الحالة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_res_config_settings
+msgid "Config Settings"
+msgstr "تهيئة الإعدادات"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Configure a valuation account on the company scrap location before "
+"processing recovered scrap."
+msgstr "يجب إعداد حساب تقييم في موقع خردة الشركة قبل معالجة الخردة المستردة."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Configure a valuation account on the production location before using real-"
+"time disassembly valuation."
+msgstr ""
+"يجب إعداد حساب تقييم في موقع الإنتاج قبل استخدام التقييم الفوري للتفكيك."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.res_config_settings_view_form_advanced_disassembly
+msgid ""
+"Configure partial disassembly and the approved allocation and destination "
+"policies."
+msgstr "تهيئة التفكيك الجزئي وسياسات التوزيع والوجهات المعتمدة."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Cost Allocation"
+msgstr "توزيع التكلفة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__created
+msgid "Created"
+msgstr "إنشاء"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__create_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__create_uid
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__create_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__create_date
+msgid "Created on"
+msgstr "تاريخ الإنشاء"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__currency_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__company_currency_id
+msgid "Currency"
+msgstr "العملة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__loss_recognition__deferred
+msgid "Deferred for accounting review"
+msgstr "مؤجل للمراجعة المحاسبية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__description
+msgid "Description"
+msgstr "الوصف"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__location
+msgid "Destination Changed"
+msgstr "تغيير الوجهة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__destination_location_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__destination_location_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__destination_location_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__destination_location_id
+msgid "Destination Location"
+msgstr "موقع الوجهة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_event
+msgid "Disassembly Audit Event"
+msgstr "حدث تدقيق التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_line
+msgid "Disassembly Component"
+msgstr "مكون التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_result
+msgid "Disassembly Component Result"
+msgstr "نتيجة مكون التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_cost
+msgid "Disassembly Cost Allocation"
+msgstr "توزيع تكلفة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_allocation
+msgid "Disassembly Cost Allocation Engine"
+msgstr "محرك توزيع تكلفة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__operation_type__hybrid
+msgid "Disassembly and Recycling"
+msgstr "التفكيك وإعادة التدوير"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_event.py:0
+msgid "Disassembly audit events are immutable."
+msgstr "سجلات تدقيق التفكيك غير قابلة للتعديل."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_event.py:0
+msgid "Disassembly audit events cannot be deleted."
+msgstr "لا يمكن حذف سجلات تدقيق التفكيك."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__discrepancy_reason
+msgid "Discrepancy Reason"
+msgstr "سبب الفرق"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_allocation__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__display_name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__display_name
+msgid "Display Name"
+msgstr "اسم العرض"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Document the source of each reference unit cost."
+msgstr "وثق مصدر كل تكلفة وحدة مرجعية."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Documented valuation evidence is required to recognize a loss."
+msgstr "يجب إدخال مستند يثبت التقييم لإثبات الخسارة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__done
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__done
+msgid "Done"
+msgstr "مكتمل"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__draft
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__draft
+msgid "Draft"
+msgstr "مسودة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Each recovered serial must be entered as an individual result quantity of "
+"one."
+msgstr "يجب إدخال كل رقم تسلسلي مسترجع في نتيجة مستقلة بكمية وحدة واحدة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__eligible_recycling_costs
+msgid "Eligible Recycling Costs"
+msgstr "تكاليف إعادة التدوير المؤهلة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Enable Advanced Disassembly to use this action."
+msgstr "فعّل التفكيك المتقدم لاستخدام هذا الإجراء."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Enter a positive recoverable target amount."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__event_type
+msgid "Event Type"
+msgstr "نوع الحدث"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/services/allocation.py:0
+msgid "Every result requires a positive documented allocation weight."
+msgstr "تتطلب كل نتيجة وزن توزيع موجبًا وموثقًا."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Every result requires an explicit positive reference allocation weight."
+msgstr "يجب تحديد وزن توزيع مرجعي موجب لكل نتيجة."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Execute Disassembly"
+msgstr "تنفيذ التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Execute Recovery"
+msgstr "تنفيذ الاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__executed
+msgid "Executed"
+msgstr "تم التنفيذ"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__executed_at
+msgid "Executed At"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__executed_by
+msgid "Executed By"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Executed. Source value %(source)s; output value %(output)s; allocated loss "
+"%(loss)s."
+msgstr ""
+"تم التنفيذ. قيمة المصدر %(source)s؛ قيمة المخرجات %(output)s؛ الخسارة "
+"الموزعة %(loss)s."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__executing
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__executing
+msgid "Executing"
+msgstr "جارٍ التنفيذ"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__execution_key
+msgid "Execution Key"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Execution and valuation fields can only be changed by the disassembly "
+"engine."
+msgstr "لا يمكن تغيير حقول التنفيذ والتقييم إلا بواسطة محرك التفكيك."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Expected"
+msgstr "المتوقع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__expected_qty
+msgid "Expected Qty"
+msgstr "الكمية المتوقعة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__expected_quantity
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__expected_quantity
+msgid "Expected Quantity"
+msgstr "الكمية المتوقعة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__expected_yield
+msgid "Expected Yield"
+msgstr "العائد المتوقع"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Expected component quantity must be greater than zero."
+msgstr "يجب أن تكون كمية المكون المتوقعة أكبر من صفر."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Expected recipe quantities must be greater than zero."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Expected yield must be between 0 and 100."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_actual_loss_value
+msgid "Ff Actual Loss Value"
+msgstr "قيمة الخسارة الفعلية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_actual_output_value
+msgid "Ff Actual Output Value"
+msgstr "قيمة المخرجات الفعلية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_allocated_asset_value
+msgid "Ff Allocated Asset Value"
+msgstr "قيمة الأصول الموزعة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_allocated_loss_value
+msgid "Ff Allocated Loss Value"
+msgstr "قيمة الخسارة الموزعة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_cost_ids
+msgid "Ff Cost"
+msgstr "تكلفة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_cost_policy
+msgid "Ff Cost Policy"
+msgstr "سياسة التكلفة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_disassembly_cost_policy
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_disassembly_cost_policy
+msgid "Ff Disassembly Cost Policy"
+msgstr "سياسة تكلفة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_disassembly_destination_policy
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_disassembly_destination_policy
+msgid "Ff Disassembly Destination Policy"
+msgstr "سياسة وجهة التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_disassembly_type
+msgid "Ff Disassembly Type"
+msgstr "نوع التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_event_ids
+msgid "Ff Event"
+msgstr "حدث التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_executed_at
+msgid "Ff Executed At"
+msgstr "وقت التنفيذ"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_executed_by
+msgid "Ff Executed By"
+msgstr "نفذ بواسطة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_execution_key
+msgid "Ff Execution Key"
+msgstr "معرّف التنفيذ"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_line_ids
+msgid "Ff Line"
+msgstr "بند التفكيك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_partial_disassembly_enabled
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_partial_disassembly_enabled
+msgid "Ff Partial Disassembly Enabled"
+msgstr "السماح بالتفكيك الجزئي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_require_financial_loss_approval
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_require_financial_loss_approval
+msgid "Ff Require Financial Loss Approval"
+msgstr "يتطلب اعتمادًا ماليًا للخسارة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_require_manager_approval
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_require_manager_approval
+msgid "Ff Require Manager Approval"
+msgstr "يتطلب اعتماد المدير"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_residual_ids
+msgid "Ff Residual"
+msgstr "التجميعة المتبقية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_residual_destination_id
+msgid "Ff Residual Destination"
+msgstr "وجهة التجميعة المتبقية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_residual_lot_id
+msgid "Ff Residual Lot"
+msgstr "تشغيلة التجميعة المتبقية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_residual_product_id
+msgid "Ff Residual Product"
+msgstr "منتج التجميعة المتبقية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_return_picking_id
+msgid "Ff Return Picking"
+msgstr "إيصال المرتجع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_source_carrying_value
+msgid "Ff Source Carrying Value"
+msgstr "القيمة الدفترية للمصدر"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_valuation_difference
+msgid "Ff Valuation Difference"
+msgstr "فرق التقييم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_workflow_state
+msgid "Ff Workflow State"
+msgstr "حالة سير العمل"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_follower_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_follower_ids
+msgid "Followers"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_partner_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_partner_ids
+msgid "Followers (Partners)"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "For serial-tracked products, select exactly one serial per unit."
+msgstr ""
+"للمنتجات المتتبعة بالرقم التسلسلي، اختر رقمًا تسلسليًا واحدًا لكل وحدة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_disassembly_type__full
+msgid "Full"
+msgstr "كامل"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_result__condition__good
+msgid "Good"
+msgstr "سليم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__has_message
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__has_message
+msgid "Has Message"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_allocation__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__id
+msgid "ID"
+msgstr "المُعرف"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_exception_icon
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_exception_icon
+msgid "Icon"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__activity_exception_icon
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__activity_exception_icon
+msgid "Icon to indicate an exception activity."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__message_needaction
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__message_needaction
+msgid "If checked, new messages require your attention."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__message_has_error
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__message_has_sms_error
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_error
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_sms_error
+msgid "If checked, some messages have a delivery error."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__expected_yield
+msgid "Informational expected yield percentage."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__input_carrying_value
+msgid "Input Carrying Value"
+msgstr "القيمة الدفترية للمدخلات"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__input_product_id
+msgid "Input Product"
+msgstr "المنتج المدخل"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Input quantities must be greater than zero."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Inputs"
+msgstr "المدخلات"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Inputs cannot be changed after validation."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Inputs cannot be deleted after validation."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__inspection
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__inspection
+msgid "Inspection"
+msgstr "فحص"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Insufficient finished-product quantity in the selected source location."
+msgstr "كمية المنتج النهائي غير كافية في موقع المصدر المحدد."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Insufficient stock for input %s."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_is_follower
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_is_follower
+msgid "Is Follower"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__write_uid
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__write_uid
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__write_date
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__write_date
+msgid "Last Updated on"
+msgstr "تاريخ آخر تحديث"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__line_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__line_ids
+msgid "Line"
+msgstr "البند"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Load Components"
+msgstr "تحميل المكونات"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Load or add component lines before validating."
+msgstr "حمّل بنود المكونات أو أضفها قبل التحقق."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__loss_account_id
+msgid "Loss / Expense Account"
+msgstr "حساب الخسائر / المصروفات"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__loss_amount
+msgid "Loss Amount"
+msgstr "مبلغ الخسارة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__loss_class
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__loss_class
+msgid "Loss Class"
+msgstr "تصنيف الهالك"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__loss_evidence
+msgid "Loss Evidence"
+msgstr "مستند إثبات الخسارة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__loss_recognition
+msgid "Loss Recognition"
+msgstr "إثبات الخسارة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__lot_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__lot_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__lot_id
+msgid "Lot"
+msgstr "التشغيلة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_line__source_type__manual
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__res_company__ff_disassembly_destination_policy__manual
+msgid "Manual"
+msgstr "يدوي"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "Manual component lines require a documented source reason."
+msgstr "تتطلب بنود المكونات اليدوية توثيق سبب ومصدر الإضافة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_line__source_type__mo
+msgid "Manufacturing Order"
+msgstr "أمر التصنيع"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__activity_type_icon
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__activity_type_icon
+msgid "Material Symbols icon e.g. checklist"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_has_error
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_error
+msgid "Message Delivery error"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_ids
+msgid "Messages"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_result__condition__missing
+msgid "Missing"
+msgstr "مفقود"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Missing components cannot have a receiving destination."
+msgstr "لا يمكن تعيين وجهة استلام للمكونات المفقودة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__my_activity_date_deadline
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__my_activity_date_deadline
+msgid "My Activity Deadline"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__name
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__name
+msgid "Name"
+msgstr "الاسم"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid ""
+"Native output valuation differs from the allocated recoverable value by %s."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Native stock-accounting loss differs from the planned allocation by %s."
+msgstr "تختلف خسارة محاسبة المخزون الأصلية عن التوزيع المخطط بمقدار %s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "New"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_date_deadline
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_date_deadline
+msgid "Next Activity Deadline"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_summary
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_summary
+msgid "Next Activity Summary"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_type_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_type_id
+msgid "Next Activity Type"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__normal_loss_value
+msgid "Normal Loss Value"
+msgstr "قيمة الفاقد الطبيعي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_output__loss_class__normal
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_recipe_line__loss_class__normal
+msgid "Normal process loss"
+msgstr "فاقد العملية الطبيعي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__notes
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__notes
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__notes
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__notes
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__notes
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__notes
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Notes"
+msgstr "ملاحظات"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_needaction_counter
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_needaction_counter
+msgid "Number of Actions"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_has_error_counter
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_error_counter
+msgid "Number of errors"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__message_needaction_counter
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__message_needaction_counter
+msgid "Number of messages requiring action"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__message_has_error_counter
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_error_counter
+msgid "Number of messages with delivery error"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Odoo did not create posted stock-accounting entries for every valued "
+"disassembly movement."
+msgstr "لم ينشئ أودو قيود محاسبة مخزون مُرحّلة لكل حركات التفكيك المُقيّمة."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Only completed operations can recognize a documented loss."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Only completed recovery operations can be reversed."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_search_view
+msgid "Open"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__operation_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__operation_id
+msgid "Operation"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__operation_type
+msgid "Operation Type"
+msgstr "نوع العملية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__recipe_id
+msgid "Optional Recovery Recipe"
+msgstr "وصفة الاسترداد الاختيارية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__original_lot_id
+msgid "Original Lot"
+msgstr "التشغيلة الأصلية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__output_line_ids
+msgid "Output Line"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__output_move_ids
+msgid "Output Move"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__output_type
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__output_type
+msgid "Output Type"
+msgstr "نوع المخرج"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Output destinations must be internal locations."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Output quantities must be greater than zero."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Outputs cannot be changed after validation."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Outputs cannot be deleted after validation."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_disassembly_type__partial
+msgid "Partial"
+msgstr "جزئي"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Partial disassembly is disabled for this company."
+msgstr "التفكيك الجزئي غير مفعّل لهذه الشركة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__recoverable_value_mode__percentage
+msgid "Percentage of carrying value"
+msgstr "نسبة من القيمة الدفترية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__processing_location_id
+msgid "Processing Location"
+msgstr "موقع المعالجة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__product_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__original_product_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__product_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__product_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__product_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__product_id
+msgid "Product"
+msgstr "المنتج"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_good
+msgid "Qty Good"
+msgstr "الكمية السليمة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_missing
+msgid "Qty Missing"
+msgstr "الكمية المفقودة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_repairable
+msgid "Qty Repairable"
+msgstr "الكمية القابلة للإصلاح"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_retained
+msgid "Qty Retained"
+msgstr "الكمية المحتفظ بها"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_scrap
+msgid "Qty Scrap"
+msgstr "كمية الخردة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__qty_unresolved
+msgid "Qty Unresolved"
+msgstr "الكمية غير المحسومة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__quantity
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__quantity
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__quantity
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__quantity
+msgid "Quantity"
+msgstr "الكمية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__quantity
+msgid "Quantity Changed"
+msgstr "تغيير الكمية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__ready
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__ready
+msgid "Ready"
+msgstr "جاهز"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__recipe_id
+msgid "Recipe"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Recognize Documented Loss"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__loss_recognition__recognize
+msgid "Recognize documented loss"
+msgstr "إثبات خسارة موثقة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__recoverable_target_amount
+msgid "Recoverable Target Amount"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__recoverable_value
+msgid "Recoverable Value"
+msgstr "القيمة القابلة للاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__recoverable_value_mode
+msgid "Recoverable Value Mode"
+msgstr "طريقة تحديد القيمة القابلة للاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__recoverable_value_percentage
+msgid "Recoverable Value Percentage"
+msgstr "نسبة القيمة القابلة للاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Recoverable Value Policy"
+msgstr "سياسة القيمة القابلة للاسترداد"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Recoverable value and recycling costs cannot be negative."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Recoverable value cannot exceed the input carrying value."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Recoverable value percentage must be between 0 and 100."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Recovered result destinations must be company-compatible internal locations."
+msgstr "يجب أن تكون وجهة النتائج المسترجعة موقعًا داخليًا متوافقًا مع الشركة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__recovery_factor
+msgid "Recovery Factor"
+msgstr "معامل الاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_recovery_input
+msgid "Recovery Operation Input"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_recovery_output
+msgid "Recovery Operation Output"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,name:ff_advanced_disassembly.action_ff_recovery_operation
+#: model:ir.ui.menu,name:ff_advanced_disassembly.menu_ff_recovery_operation
+msgid "Recovery Operations"
+msgstr "عمليات الاسترداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_recovery_recipe
+msgid "Recovery Recipe"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_recovery_recipe_line
+msgid "Recovery Recipe Output"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,name:ff_advanced_disassembly.action_ff_recovery_recipe
+#: model:ir.ui.menu,name:ff_advanced_disassembly.menu_ff_recovery_recipe
+msgid "Recovery Recipes"
+msgstr "وصفات الاسترداد"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Recovery allocation from %s"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_recovery_operation
+msgid "Recovery and Recycling Operation"
+msgstr "عملية الاسترداد وإعادة التدوير"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Recovery factor must be between 0 and 1."
+msgstr "يجب أن يكون معامل الاسترداد بين 0 و1."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__operation_type__recycling
+msgid "Recycling"
+msgstr "إعادة التدوير"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__reference_cost_source
+msgid "Reference Cost Source"
+msgstr "مصدر التكلفة المرجعية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__reference_unit_cost
+msgid "Reference Unit Cost"
+msgstr "تكلفة الوحدة المرجعية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__reference_weight
+msgid "Reference Weight"
+msgstr "الوزن المرجعي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__reference_weight_total
+msgid "Reference Weight Total"
+msgstr "إجمالي الوزن المرجعي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_result__condition__repairable
+msgid "Repairable"
+msgstr "قابل للإصلاح"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__loss_evidence
+msgid "Required evidence when a loss is explicitly recognized."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_ff_disassembly_residual
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Residual Assembly"
+msgstr "التجميعة المتبقية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__residual_lot_id
+msgid "Residual Lot"
+msgstr "تشغيلة المتبقي"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__residual_product_id
+msgid "Residual Product"
+msgstr "منتج المتبقي"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Residual assembly allocation from %s"
+msgstr "توزيع قيمة التجميعة المتبقية من %s"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Residual destination must be a company-compatible internal location."
+msgstr "يجب أن تكون وجهة التجميعة المتبقية موقعًا داخليًا متوافقًا مع الشركة."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Residual product unit must be compatible with the original product unit."
+msgstr "يجب أن تكون وحدة قياس منتج المتبقي متوافقة مع وحدة المنتج الأصلي."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__activity_user_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__activity_user_id
+msgid "Responsible User"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__result_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__result_ids
+msgid "Result"
+msgstr "النتيجة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Result for %(product)s changed."
+msgstr "تم تعديل نتيجة المنتج %(product)s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Result for %(product)s was added."
+msgstr "تمت إضافة نتيجة للمنتج %(product)s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Result quantity must be greater than zero."
+msgstr "يجب أن تكون كمية النتيجة أكبر من صفر."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_result__condition__retained
+msgid "Retained"
+msgstr "محتفظ به"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__retained_components_snapshot
+msgid "Retained Components Snapshot"
+msgstr "لقطة المكونات المحتفظ بها"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "Retained components are represented by the residual assembly."
+msgstr "تُمثّل المكونات المحتفظ بها ضمن التجميعة المتبقية."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Retained results are only valid for partial disassembly."
+msgstr "تُستخدم نتيجة «محتفظ به» في التفكيك الجزئي فقط."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Reversal of %s"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__reverse_move_ids
+msgid "Reverse Move"
+msgstr "حركة عكسية"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Reverse Operation"
+msgstr "عكس العملية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__state__reversed
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__mrp_unbuild__ff_workflow_state__reversed
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__reversed
+msgid "Reversed"
+msgstr "معكوس"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__reversed_at
+msgid "Reversed At"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__reversed_by
+msgid "Reversed By"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__message_has_sms_error
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe__message_has_sms_error
+msgid "SMS Delivery error"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_result__condition__scrap
+msgid "Scrap"
+msgstr "خردة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_output__output_type__secondary
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_recipe_line__output_type__secondary
+msgid "Secondary output"
+msgstr "مخرج ثانوي"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Select a completed manufacturing order or a valid BoM before loading "
+"components."
+msgstr "اختر أمر تصنيع مكتملًا أو قائمة مواد صالحة قبل تحميل المكونات."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Select a destination for each physically recovered result."
+msgstr "اختر وجهة مستقلة لكل نتيجة مسترجعة فعليًا."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Select a destination for every usable output."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Select a loss account and document the valuation evidence first."
+msgstr "اختر حساب الخسارة وأدخل مستند إثبات التقييم أولاً."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Select a recovery recipe first."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Select a residual assembly product and destination."
+msgstr "اختر منتج التجميعة المتبقية ووجهتها."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Select source lot or serial numbers before validating."
+msgstr "حدد تشغيلات أو أرقامًا تسلسلية للمصدر قبل التحقق."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Selected serial/lot quantities do not cover the requested source quantity."
+msgstr ""
+"كميات التشغيلات أو الأرقام التسلسلية المحددة لا تغطي كمية المصدر المطلوبة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__sequence
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__sequence
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__sequence
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__sequence
+msgid "Sequence"
+msgstr "التسلسل"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"Serial-tracked finished products must be disassembled one serial per "
+"operation."
+msgstr ""
+"يجب تفكيك المنتجات النهائية المتتبعة تسلسليًا: رقم تسلسلي واحد في كل عملية."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Serial-tracked inputs must be entered one serial per line."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Serial-tracked outputs must be entered one serial per line."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__source_carrying_value
+msgid "Source Carrying Value"
+msgstr "القيمة الدفترية للمصدر"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__source_line_ids
+msgid "Source Line"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__source_location_id
+msgid "Source Location"
+msgstr "موقع المصدر"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__source_move_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__source_move_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__source_move_ids
+msgid "Source Move"
+msgstr "حركة المصدر"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__source_type
+msgid "Source Type"
+msgstr "نوع المصدر"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__state
+msgid "State"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_search_view
+msgid "Status"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__activity_state
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__activity_state
+msgid ""
+"Status based on activities\n"
+"Overdue: Due date is already passed\n"
+"Today: Activity date is today\n"
+"Planned: Future activities."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__stock_move_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__stock_move_ids
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__stock_move_id
+msgid "Stock Move"
+msgstr "الحركة المخزنية"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_operation__recoverable_value_mode__amount
+msgid "Target amount"
+msgstr "قيمة مستهدفة"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"The actual native scrap valuation differs from the allocated scrap loss by "
+"%s."
+msgstr "يختلف تقييم الخردة الفعلي وفق أودو عن خسارة الخردة الموزعة بمقدار %s."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_line.py:0
+msgid "The component unit must belong to the product's unit category."
+msgstr "يجب أن تنتمي وحدة المكون إلى فئة وحدات قياس المنتج."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "The documented loss has already been recognized."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"The linked return picking does not contain the requested quantity in the "
+"selected source location."
+msgstr ""
+"لا يحتوي إيصال المرتجع المرتبط على الكمية المطلوبة في موقع المصدر المحدد."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"The linked return picking must be completed and belong to the same company."
+msgstr "يجب أن يكون إيصال المرتجع المرتبط مكتملًا وتابعًا للشركة نفسها."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "The residual assembly must use a distinct product SKU."
+msgstr "يجب أن تستخدم التجميعة المتبقية رمز منتج مستقلًا عن المنتج الأصلي."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "The selected lot belongs to a different company."
+msgstr "التشغيلة المحددة تابعة لشركة أخرى."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/disassembly_result.py:0
+msgid "The selected lot belongs to a different product."
+msgstr "التشغيلة المحددة تابعة لمنتج آخر."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid ""
+"The source finished-product move has no carrying value; allocation cannot "
+"proceed."
+msgstr ""
+"لا تحمل حركة المنتج النهائي المصدر قيمة دفترية؛ لا يمكن متابعة التوزيع."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "The source must be a company-compatible internal stock location."
+msgstr "يجب أن يكون المصدر موقع مخزون داخليًا متوافقًا مع الشركة."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "The source product has no stock valuation account configured."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "This creates new reversing stock moves. Continue?"
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "This disassembly already has an execution record."
+msgstr "لهذا التفكيك سجل تنفيذ بالفعل."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "This disassembly is already completed or executing."
+msgstr "هذا التفكيك مكتمل بالفعل أو قيد التنفيذ."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "This recovery operation already has a reversal."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "This recovery operation already has an execution record."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "This recovery operation is already completed."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.module.module,summary:base.module_ff_advanced_disassembly
+msgid ""
+"Traceable component recovery and residual stock handling for manufacturing "
+"unbuild orders"
+msgstr "تفكيك كامل وجزئي مضبوط مع تتبع نتائج المكونات"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_operation__activity_exception_decoration
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe__activity_exception_decoration
+msgid "Type of the exception activity on record."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__unbuild_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__unbuild_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__unbuild_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_residual__unbuild_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_result__unbuild_id
+msgid "Unbuild"
+msgstr "تفكيك المنتج"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model,name:ff_advanced_disassembly.model_mrp_unbuild
+msgid "Unbuild Order"
+msgstr "أمر تفكيك المنتج"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_line__uom_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_input__uom_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__uom_id
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__uom_id
+msgid "Uom"
+msgstr "وحدة القياس"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_output__output_type__usable
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_recipe_line__output_type__usable
+msgid "Usable"
+msgstr "صالح للاستخدام"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Usable outputs require a positive allocation weight."
+msgstr "عند وجود عدة مخرجات صالحة للاستخدام، يجب تحديد وزن توزيع موجب لكل مخرج."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Usable recipe outputs require a positive allocation weight."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_event__user_id
+msgid "User"
+msgstr "المستخدم"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Validate"
+msgstr "اعتماد"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.mrp_unbuild_form_advanced_disassembly
+msgid "Validate Inspection"
+msgstr "اعتماد الفحص"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_operation__valuation_difference
+msgid "Valuation Difference"
+msgstr "فرق التقييم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_disassembly_event__event_type__valuation
+msgid "Valuation Reconciled"
+msgstr "تسوية التقييم"
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Valuation Reconciliation"
+msgstr "تسوية التقييم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__valuation_reference
+msgid "Valuation Reference"
+msgstr "مرجع التقييم"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_disassembly_cost__variance
+msgid "Variance"
+msgstr "الفرق"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_output__output_type__waste
+#: model:ir.model.fields.selection,name:ff_advanced_disassembly.selection__ff_recovery_recipe_line__output_type__waste
+msgid "Waste / Scrap"
+msgstr "مخلفات / هالك"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "You are not allowed to enable advanced disassembly."
+msgstr "غير مصرح لك بتفعيل التفكيك المتقدم."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "You are not allowed to operate advanced disassembly orders."
+msgstr "غير مصرح لك بإدارة أو تنفيذ أوامر التفكيك المتقدم."
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "You are not allowed to operate recovery operations."
+msgstr ""
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__output_type
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__output_type
+msgid "Output Destination"
+msgstr "مصير المخرج"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_output__output_type
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe_line__output_type
+msgid "Choose whether this line returns usable stock, records a secondary output, or sends material to scrap."
+msgstr "حدد هل يعيد هذا السطر مخزوناً صالحاً للاستخدام، أو يسجل مخرجاً ثانوياً، أو يرسل المادة إلى الهالك."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_output__loss_class
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe_line__loss_class
+msgid "Use only for waste lines: normal loss is expected in the process; abnormal waste needs review."
+msgstr "يُستخدم فقط لأسطر الهالك: الفاقد الطبيعي متوقع في العملية، أما المخلفات غير الطبيعية فتحتاج إلى مراجعة."
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_output__allocation_weight
+#: model:ir.model.fields,field_description:ff_advanced_disassembly.field_ff_recovery_recipe_line__allocation_weight
+msgid "Value Allocation Weight"
+msgstr "وزن توزيع القيمة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_output__allocation_weight
+#: model:ir.model.fields,help:ff_advanced_disassembly.field_ff_recovery_recipe_line__allocation_weight
+msgid "Advanced: controls how recoverable value is split between multiple non-waste outputs."
+msgstr "إعداد متقدم: يحدد كيفية توزيع القيمة القابلة للاسترداد بين عدة مخرجات غير هالكة."
+
+#. module: ff_advanced_disassembly
+#: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.ff_recovery_operation_form_view
+msgid "Document the inspection, scrap ticket, or approval reference"
+msgstr "اكتب مرجع الفحص أو إذن الهالك أو الموافقة"
+
+#. module: ff_advanced_disassembly
+#: model:ir.model.constraint,help:ff_advanced_disassembly.model_ff_recovery_operation
+msgid "The processing location must be different from the source location so stock quantities can change."
+msgstr "يجب أن يختلف موقع المعالجة عن موقع المصدر حتى تتغير كميات المخزون."
+
+#. module: ff_advanced_disassembly
+#: code:addons/ff_advanced_disassembly/models/recovery_operation.py:0
+msgid "Recovery source and destination locations must be internal; the processing location may also be the standard production location."
+msgstr "يجب أن تكون مواقع المصدر والوجهة داخلية، ويمكن أن يكون موقع المعالجة هو موقع الإنتاج القياسي."
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,help:ff_advanced_disassembly.action_ff_recovery_operation
+msgid "Create a recovery operation"
+msgstr "أنشئ عملية استرداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,help:ff_advanced_disassembly.action_ff_recovery_operation
+msgid "Record recovered outputs, documented losses, and the stock traceability in one controlled workflow."
+msgstr "سجّل المخرجات المستردة والخسائر الموثقة وتتبع المخزون ضمن سير عمل مضبوط واحد."
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,help:ff_advanced_disassembly.action_ff_recovery_recipe
+msgid "Create a recovery recipe"
+msgstr "أنشئ وصفة استرداد"
+
+#. module: ff_advanced_disassembly
+#: model:ir.actions.act_window,help:ff_advanced_disassembly.action_ff_recovery_recipe
+msgid "Define the expected outputs once and reuse them when preparing recovery operations."
+msgstr "عرّف المخرجات المتوقعة مرة واحدة وأعد استخدامها عند تجهيز عمليات الاسترداد."

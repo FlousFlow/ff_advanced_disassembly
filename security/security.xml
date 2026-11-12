@@ -1,0 +1,14 @@
+<odoo>
+    <record id="group_ff_disassembly_user" model="res.groups">
+        <field name="name">Advanced Disassembly User</field>
+        <field name="implied_ids" eval="[(4, ref('mrp.group_mrp_user'))]"/>
+    </record>
+    <record id="group_ff_disassembly_cost_viewer" model="res.groups">
+        <field name="name">Advanced Disassembly Cost Viewer</field>
+        <field name="implied_ids" eval="[(4, ref('group_ff_disassembly_user'))]"/>
+    </record>
+    <record id="group_ff_disassembly_administrator" model="res.groups">
+        <field name="name">Advanced Disassembly Administrator</field>
+        <field name="implied_ids" eval="[(4, ref('group_ff_disassembly_cost_viewer')), (4, ref('mrp.group_mrp_manager'))]"/>
+    </record>
+</odoo>
