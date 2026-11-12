@@ -19,6 +19,10 @@ The primary screen is intentionally focused on the decisions the operator must
 make:
 
 - **Source Product Location**: where the finished product is consumed.
+- **Source Lot / Serial**: shown only when the source product uses lot or serial
+  tracking. The selector is filtered to the selected product's lots/serials
+  with available quantity in the source location, so unrelated products and
+  empty lots cannot be selected.
 - **Disassembly Type**: Full or Partial.
 - **Recovered Value Percentage**: one percentage for the whole operation, not a
   repeated percentage on every output line.

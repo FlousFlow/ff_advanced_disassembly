@@ -20,6 +20,48 @@ class TestAdvancedDisassembly(TransactionCase):
         self.assertEqual(company.ff_disassembly_cost_policy, "allocated")
         self.assertEqual(company.ff_disassembly_destination_policy, "manual")
 
+    def test_available_source_lots_are_limited_to_tracked_products_and_stock(self):
+        warehouse = self.env["stock.warehouse"].search(
+            [("company_id", "=", self.env.company.id)], limit=1,
+        )
+        stock_location = warehouse.lot_stock_id
+        tracked = self.env["product.product"].create({
+            "name": "Tracked Disassembly Source",
+            "type": "consu",
+            "is_storable": True,
+            "tracking": "lot",
+            "standard_price": 25.0,
+        })
+        lot = self.env["stock.lot"].create({
+            "name": "DIS-SOURCE-LOT",
+            "product_id": tracked.id,
+            "company_id": self.env.company.id,
+        })
+        self.env["stock.quant"]._update_available_quantity(
+            tracked, stock_location, 2.0, lot_id=lot,
+        )
+        order = self.env["mrp.unbuild"].create({
+            "product_id": tracked.id,
+            "product_qty": 1.0,
+            "company_id": self.env.company.id,
+            "location_id": stock_location.id,
+            "location_dest_id": stock_location.id,
+            "ff_advanced_mode": True,
+        })
+        self.assertEqual(order.has_tracking, "lot")
+        self.assertIn(lot, order.ff_available_lot_ids)
+
+        untracked = self.env["product.product"].create({"name": "Untracked Disassembly Source"})
+        untracked_order = self.env["mrp.unbuild"].create({
+            "product_id": untracked.id,
+            "product_qty": 1.0,
+            "company_id": self.env.company.id,
+            "location_id": stock_location.id,
+            "location_dest_id": stock_location.id,
+            "ff_advanced_mode": True,
+        })
+        self.assertFalse(untracked_order.ff_available_lot_ids)
+
     def test_allocation_includes_assets_residual_and_losses(self):
         currency = self.env.company.currency_id
         good = SimpleNamespace(condition="good", reference_weight=400.0, recovery_factor=1.0)

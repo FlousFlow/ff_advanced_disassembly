@@ -126,3 +126,14 @@ explanation expected by an Apps reviewer. The documentation deliberately keeps
 category-driven Odoo accounting as the default and describes the company-level
 valuation-difference account as an optional override.
 
+### 2026-11-12 — Source lot and serial selection
+
+The advanced Unbuild form now reuses Odoo's standard `lot_ids` field and keeps
+its native conditional behavior: it is visible and required only for products
+tracked by lot or serial. Its domain also includes lots/serials with positive
+available quantity in the selected source location, while retaining the lot
+produced by a linked Manufacturing Order. A hidden computed helper field builds
+that availability list from `stock.quant`; no custom lot model or core patch is
+introduced. Regression coverage verifies that a tracked product exposes its
+available source lot and an untracked product exposes none.
+

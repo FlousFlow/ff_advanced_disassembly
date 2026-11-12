@@ -33,6 +33,12 @@ class MrpUnbuild(models.Model):
     ff_return_picking_id = fields.Many2one("stock.picking", check_company=True)
     ff_residual_product_id = fields.Many2one("product.product", check_company=True)
     ff_cost_policy = fields.Selection([("allocated", "Allocated")], default="allocated", readonly=True)
+    ff_available_lot_ids = fields.Many2many(
+        "stock.lot",
+        string="Available Lots / Serials",
+        compute="_compute_ff_available_lot_ids",
+        help="Lots or serials with available stock for the selected product and source location.",
+    )
     ff_source_carrying_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
     ff_allocated_asset_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
     ff_allocated_loss_value = fields.Monetary(currency_field="company_currency_id", copy=False, readonly=True, groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator")
@@ -75,6 +81,30 @@ class MrpUnbuild(models.Model):
                 raise UserError(_("Completed advanced disassembly records are immutable."))
         result = super().write(vals)
         return result
+
+    @api.depends("product_id", "location_id", "company_id")
+    def _compute_ff_available_lot_ids(self):
+        """Expose only tracked lots/serials that can be selected at the source."""
+        Quant = self.env["stock.quant"]
+        for order in self:
+            order.ff_available_lot_ids = False
+            if not order.product_id or not order.location_id or order.product_id.tracking == "none":
+                continue
+            quants = Quant.search([
+                ("product_id", "=", order.product_id.id),
+                ("location_id", "child_of", order.location_id.id),
+                ("company_id", "in", [False, order.company_id.id]),
+                ("lot_id", "!=", False),
+            ])
+            precision = self.env["decimal.precision"].precision_get("Product Unit")
+            available_lots = quants.filtered(
+                lambda quant: float_compare(
+                    quant.quantity - quant.reserved_quantity,
+                    0.0,
+                    precision_digits=precision,
+                ) > 0
+            ).mapped("lot_id")
+            order.ff_available_lot_ids = available_lots
 
     def action_validate(self):
         advanced = self.filtered("ff_advanced_mode")

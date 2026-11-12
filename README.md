@@ -35,6 +35,9 @@ is at the repository root and the supported Git ref is `20.0`.
   advanced mode is off.
 - Use the standard source-location field, labelled **Source Product Location**
   in the advanced form.
+- For lot- or serial-tracked source products, show the standard source tracking
+  field only when tracking is enabled and filter it to matching lots/serials
+  available in the selected source location. Untracked products do not show it.
 - Select **Full** or **Partial** disassembly.
 - Auto-load component lines from a completed Manufacturing Order or the selected
   Bill of Materials as soon as the product and source are available.
@@ -186,8 +189,12 @@ snapshot. Use separate result lines for different products or conditions.
 
 ### Tracked products fail validation
 
-Select the matching lot or serial. Serial-tracked finished products are handled
-one serial per operation, and each serial output quantity must be one.
+Select the matching lot or serial from the source tracking field. The field is
+hidden for untracked products and its dropdown is limited to the selected
+product's available stock in the source location (plus the lot produced by the
+linked manufacturing order when applicable). Serial-tracked finished products
+are handled one serial per operation, and each serial output quantity must be
+one.
 
 ### A completed order cannot be edited
 
@@ -255,5 +262,5 @@ the reversal workflow and a new traceable operation.
 ## Repository and release
 
 This is a dedicated single-addon repository. The supported branch is `20.0`,
-the manifest version is `20.0.1.0.1`, and generated caches/local runtime files
+the manifest version is `20.0.1.0.2`, and generated caches/local runtime files
 are excluded from Git.

@@ -8,6 +8,7 @@
 | G3 Cost/accounting | PASS (tested matrix) | Dedicated accounting tests cover Standard/FIFO/AVCO crossed with periodic and real-time valuation (6 cases), checking allocated-loss reconciliation and generated real-time journal entries. Uses the configured Odoo test chart; other localization/chart configurations remain unverified. |
 | G4 Partial disassembly | PASS (covered scenario) | Partial execution creates one residual asset and checks the resulting stock/valuation on the dedicated database. Alternative UOM/tracked residual cases remain unverified. |
 | G5 Security/reliability | PASS (covered scenarios) | Cost-field access denial, completed-order immutability, audit visibility, transaction rollback, cross-company record isolation, lot/serial component traceability, controlled recovery reversal, and a two-transaction execution-claim race pass. This is not an exhaustive role or multi-company matrix. |
+| G6 Source lot/serial UX | PASS (targeted test) | A tracked product exposes only its positive-availability source lot; an untracked product exposes no source lot list. The inherited Odoo field remains conditionally visible and required only for lot/serial tracking. |
 | Arabic translation | PASS (coverage/load) | `i18n/ar_001.po` contains 190/190 non-empty, non-fuzzy entries. Odoo loaded Arabic and `fields_get` returned translated labels for `ff_advanced_mode`, `ff_disassembly_type`, and `ff_workflow_state`. Human review of every translated sentence is not certified. |
 
 ## Test run
@@ -27,7 +28,7 @@ Observed result: `0 failed, 0 error(s) of 19 post-tests` (29 Odoo-reported tests
 
 The addon is packaged as a dedicated public GitHub repository at
 `FlousFlow/ff_advanced_disassembly`, with the addon at repository root on the
-`20.0` branch and version tag `20.0.1.0.1`. The cover image and expanded Apps
+`20.0` branch and version tag `20.0.1.0.2`. The cover image and expanded Apps
 description are included in `static/description/`. A clean clone of the GitHub
 branch was installed successfully on a disposable Odoo 20 database.
 

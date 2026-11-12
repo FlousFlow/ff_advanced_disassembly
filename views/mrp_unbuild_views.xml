@@ -25,6 +25,15 @@
                 <attribute name="groups">stock.group_stock_multi_locations,ff_advanced_disassembly.group_ff_disassembly_user</attribute>
                 <attribute name="help">الموقع المخزني الذي سيتم سحب المنتج المفكك منه.</attribute>
             </xpath>
+            <xpath expr="//field[@name='lot_ids']" position="attributes">
+                <attribute name="string">دفعات / أرقام تسلسلية للمنتج المصدر</attribute>
+                <attribute name="domain">[('product_id', '=', product_id), '|', ('id', 'in', lot_producing_ids), ('id', 'in', ff_available_lot_ids)]</attribute>
+                <attribute name="help">اختر دفعة أو رقمًا تسلسليًا متاحًا للمنتج المصدر في موقع المصدر. يظهر الحقل للمنتجات التي تستخدم التتبع فقط.</attribute>
+                <attribute name="options">{'no_create': True, 'no_create_edit': True, 'on_tag_click': 'open_form'}</attribute>
+            </xpath>
+            <xpath expr="//field[@name='has_tracking']" position="after">
+                <field name="ff_available_lot_ids" invisible="1" groups="stock.group_production_lot"/>
+            </xpath>
             <xpath expr="//sheet/group" position="before">
                 <group>
                     <field name="ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_user"/>
