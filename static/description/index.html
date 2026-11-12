@@ -1,40 +1,79 @@
 <section class="container">
     <div class="row mb-4">
         <div class="col-12">
-            <img class="img-fluid rounded" src="cover.png" alt="Organized component recovery after manufacturing disassembly"/>
+            <img class="img-fluid rounded" src="cover.png" alt="Flous Flow Advanced Disassembly and Recycling for Odoo 20 Community"/>
         </div>
     </div>
-    <div class="row mb-3">
+
+    <div class="row mb-4">
         <div class="col-12">
-            <h2>Advanced Disassembly for Odoo 20</h2>
-            <p>Extend Manufacturing Unbuild with documented component inspection, individual recovery destinations, cost allocation records, and an identified residual assembly for partial disassembly.</p>
+            <h2>Advanced Disassembly &amp; Recycling for Odoo 20 Community</h2>
+            <p class="lead">Inspect components, control recovered outputs, record partial disassembly, and keep stock valuation traceable through native Odoo records.</p>
+            <p><strong>Flous Flow Advanced Disassembly</strong> extends Manufacturing Unbuild without changing the standard Odoo flow when advanced mode is disabled.</p>
         </div>
     </div>
-    <div class="row mb-3">
-        <div class="col-md-6">
-            <h3>Operational controls</h3>
+
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <h3>Inventory control</h3>
             <ul>
-                <li>Keep native Odoo Unbuild behavior for standard orders.</li>
-                <li>Load component expectations from a manufacturing order or bill of materials.</li>
-                <li>Classify each component result as good, repairable, scrap, missing, or retained.</li>
-                <li>Choose an internal destination and lot or serial for recovered results.</li>
-                <li>Record an audit trail and preserve completed operational evidence.</li>
+                <li>Automatic component snapshot from a completed MO or BoM.</li>
+                <li>Actual output product and quantity control.</li>
+                <li>Internal destinations, lots, serials, scrap, and missing quantities.</li>
+                <li>Native stock moves and immutable completed records.</li>
             </ul>
         </div>
-        <div class="col-md-6">
-            <h3>Cost visibility</h3>
+        <div class="col-md-4">
+            <h3>Recovery workflows</h3>
             <ul>
-                <li>Allocate the consumed product's carrying value from documented reference weights.</li>
-                <li>Compare planned allocations with actual Odoo stock move values.</li>
-                <li>Restrict cost details to users in the cost viewer or administrator group.</li>
+                <li>Full and Partial Advanced Unbuild.</li>
+                <li>Recovery and Recycling Operations.</li>
+                <li>Different output SKUs when a component is transformed.</li>
+                <li>Reusable recovery recipes for repeatable output mixes.</li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h3>Accounting visibility</h3>
+            <ul>
+                <li>Operation-level recovered-value percentage.</li>
+                <li>Expected valuation difference preview.</li>
+                <li>Automatic cost allocation from quantity and product cost.</li>
+                <li>One balanced valuation journal per advanced disassembly.</li>
             </ul>
         </div>
     </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3>Native Odoo workflow</h3>
+            <p><strong>Draft → Inspection → Ready → Executing → Done</strong>. Operators review the automatically loaded component lines, set actual outputs and destinations, validate the inspection, and execute the operation. Administrators can reverse a completed operation through linked reversing stock moves and journal entries; posted history is not edited in place.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3>Valuation policy</h3>
+            <p>The source carrying value is captured from Odoo stock valuation. A single recovered-value percentage applies to the operation. The remaining percentage becomes the expected valuation difference.</p>
+            <p>The optional company-level disassembly valuation-difference account overrides the source product category's Stock Variation Account. If no override is configured, standard category accounting remains the default.</p>
+        </div>
+        <div class="col-md-6">
+            <h3>Permissions</h3>
+            <p>Separate Advanced Disassembly User, Cost Viewer, and Administrator groups keep operational access distinct from monetary details, configuration, and reversal actions.</p>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <h3>Installation and compatibility</h3>
+            <p>Requires <strong>Odoo 20.0 Community</strong> with <code>mrp</code>, <code>stock_account</code>, and <code>mail</code>. There are no Enterprise dependencies. Clone the dedicated repository on the <code>20.0</code> branch, add it to <code>--addons-path</code>, update the Apps list, and install <code>ff_advanced_disassembly</code>.</p>
+            <p><strong>التفكيك المتقدم</strong> يضيف فحصًا واضحًا للمكونات، التحكم في الكميات والمخرجات، وجهات التخزين، التفكيك الجزئي، وحركة تقييم محاسبية قابلة للمراجعة.</p>
+        </div>
+    </div>
+
     <div class="row mt-4">
         <div class="col-12">
-            <h3>Compatibility and current scope</h3>
-            <p>Requires Odoo 20.0 Community with Manufacturing and Stock Accounting. The Odoo 20 test suite covers BOM-backed full and partial execution, missing and recovered-scrap outcomes, residual stock creation, MO component resolution, rollback on valuation mismatch, native Unbuild behavior, component lot/serial traceability, cross-company access isolation, and six accounting valuation combinations. A concurrent transaction smoke test verified single-claim execution behavior.</p>
-            <p><strong>Known limitations:</strong> Other localization charts and custom account configurations, finished-product serial scenarios, and exhaustive multi-company role combinations remain unverified. The included cover image is a neutral product visual and can be replaced with branded marketing artwork for a specific Apps listing.</p>
+            <h3>Quality and scope</h3>
+            <p>The repository includes Arabic translations, access controls, upgrade documentation, automated tests for stock and valuation flows, and a focused user guide. Customer-specific charts of accounts, localization behavior, production load, physical warehouse execution, and marketplace approval must still be validated in staging.</p>
         </div>
     </div>
 </section>

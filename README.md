@@ -1,64 +1,259 @@
 # Flous Flow Advanced Disassembly
 
-Odoo 20 Community addon extending Manufacturing Unbuild with component inspection, per-result destinations, allocation records, audit events, and a residual assembly representation for partial disassembly. It also provides a native stock-move based Recovery Operation for recycling and hybrid disassembly/recycling workflows.
+Advanced component disassembly, recovery, and recycling controls for **Odoo 20
+Community**. The addon extends the native Manufacturing Unbuild document while
+keeping stock moves, valuation layers, journal entries, traceability, and audit
+events in standard Odoo models.
 
-## Compatibility and dependencies
+## Why this addon exists
 
-- Odoo 20.0 Community
-- `mrp`, `stock_account`, and `mail`
-- No Enterprise dependencies
+Standard unbuild is ideal when every component is returned exactly as defined by
+the BoM. Real workshops also need to record recovered quantities, changed output
+SKUs, repairable components, scrap, missing quantities, partial disassembly,
+recycling, and valuation differences. This addon adds those controls without
+replacing the standard Odoo flow when advanced mode is disabled.
 
-## Install
+## Compatibility
 
-Place this addon in an active Odoo addons path, update the Apps list, and install **Flous Flow Advanced Disassembly**. For command-line installation, include its parent directory in `--addons-path` and use `-i ff_advanced_disassembly`.
+| Item | Value |
+|---|---|
+| Odoo series | 20.0 Community |
+| License | LGPL-3 |
+| Module technical name | `ff_advanced_disassembly` |
+| Required modules | `mrp`, `stock_account`, `mail` |
+| Enterprise dependency | None |
+| Supported language | English and Arabic translation included |
+
+The repository is intentionally a dedicated single-addon repository. The addon
+is at the repository root and the supported Git ref is `20.0`.
+
+## Main capabilities
+
+### Advanced Manufacturing Unbuild
+
+- Enable advanced mode on an Unbuild order while preserving native Unbuild when
+  advanced mode is off.
+- Use the standard source-location field, labelled **Source Product Location**
+  in the advanced form.
+- Select **Full** or **Partial** disassembly.
+- Auto-load component lines from a completed Manufacturing Order or the selected
+  Bill of Materials as soon as the product and source are available.
+- Edit the output product, output quantity, recovery percentage, destination,
+  lot, or serial before validation.
+- Add a different product SKU when a component is transformed into another item.
+- Mark outcomes as good, repairable, scrap, missing, or retained.
+- Show the expected cost difference immediately from the source carrying value
+  estimate and the operation recovery percentage.
+- Validate an inspection, then execute the stock operation through native stock
+  moves.
+- Keep completed records immutable and expose an administrator-only reversal
+  action that creates linked reversing stock moves and accounting entries.
+
+### Partial disassembly
+
+Partial mode uses the same component/result table. A residual assembly product
+and internal destination are requested only when a result is explicitly marked
+as **Retained**. The residual component snapshot is stored for traceability and
+the residual stock move is linked to the operation.
+
+### Recovery and recycling operations
+
+The administrator-only **Manufacturing → Recovery Operations** menu is intended
+for recycling or hybrid transformations where the output is not simply the BoM
+component list.
+
+- Record one or more source input lines.
+- Choose Recycling or Disassembly and Recycling.
+- Optionally apply a reusable recovery recipe.
+- Enter actual output products and quantities before execution.
+- Classify outputs as usable, secondary, or waste and assign internal
+  destinations.
+- Use a single recoverable-value percentage or a target amount.
+- Execute and reverse through linked native stock moves.
+
+## Recommended workflow
+
+### Full advanced disassembly
+
+1. Open **Manufacturing → Operations → Unbuild Orders** and create an order.
+2. Select the finished product, quantity, source location, and completed MO or
+   BoM.
+3. Enable **Advanced Disassembly**. The component inspection lines are loaded
+   automatically.
+4. In **Component Inspection**, set the actual output product, quantity, and
+   internal destination. Add a result line when a component splits into more
+   than one outcome.
+5. Set the operation-level recovered-value percentage. The remaining percentage
+   is the expected valuation difference/loss.
+6. Click **Validate Inspection**. The order moves to Ready after quantities,
+   locations, tracking, and valuation rules pass validation.
+7. Click **Execute Disassembly**. Odoo creates the source/output stock moves
+   and the valuation records.
+8. If a completed operation must be corrected, an Advanced Disassembly
+   Administrator can use **Reverse Operation**. The original moves and posted
+   journal entries are never edited in place.
+
+### Recovery operation
+
+1. Open **Manufacturing → Recovery Operations**.
+2. Choose the source location and review the default processing location. The
+   processing location is the warehouse production location used to make the
+   physical stock change visible.
+3. Add input lines and actual output lines, or apply a recovery recipe.
+4. Choose the recoverable-value policy and complete the required destinations.
+5. Click **Validate**, then **Execute Recovery**.
+6. Use **Reverse Operation** only when the operation is complete and the user
+   has administrator rights.
+
+## Valuation and accounting behavior
+
+The addon uses the source carrying value captured from Odoo stock valuation. It
+allocates the recoverable value across outputs using automatic reference weights
+based on output quantity and product cost. Users do not need to maintain a
+technical allocation-weight field for the normal workflow.
+
+For advanced disassembly, source, output, residual, and scrap valuation moves
+are consolidated into one balanced journal entry for the operation. The entry
+contains the net stock valuation effect and the configured valuation-difference
+account when a difference remains.
+
+The valuation-difference account follows this order:
+
+1. The optional company-level **Disassembly Valuation Difference Account** in
+   Manufacturing settings, when configured.
+2. Otherwise, the source product category's **Stock Variation Account**.
+
+The module does **not** invent a new Production account automatically. Normal
+Odoo category accounting remains the default; the company setting is an explicit
+override for companies that want one shared account.
+
+For real-time valuation, the relevant product categories must have valid stock
+valuation accounts and the company must have a stock valuation journal. The
+module reports a clear validation error when the accounting configuration is
+incomplete instead of posting an unbalanced entry.
 
 ## Configuration
 
-Manufacturing settings store company-scoped values. Defaults are partial disassembly enabled, manager approval disabled, financial loss approval disabled, allocated cost policy, and manual destinations. Changing settings does not rewrite completed order snapshots.
+Go to **Manufacturing → Configuration → Settings → Advanced Disassembly**.
 
-Users need the Advanced Disassembly User group; the cost viewer and administrator groups provide additional cost and administration access.
+- **Enable Partial Disassembly**: allow retained residual assemblies.
+- **Require Manager Approval**: enable the approval policy for the operation.
+- **Require Financial Loss Approval**: enable the configured loss-approval
+  policy.
+- **Disassembly Valuation Difference Account**: optional company-wide override;
+  leave empty to use the source category's Stock Variation Account.
+- **Cost Policy** and **Destination Policy**: keep the company-approved policy
+  used by the validation engine.
 
-## Recycling and hybrid operations
+Before executing real-time valuation, also verify the standard Odoo setup:
 
-Use **Manufacturing → Recovery Operations** when the source product can be transformed into different products or when disassembly and recycling must be coordinated in one controlled operation. Inputs and actual outputs are editable before validation, output products may be selected dynamically, and each output can be classified as usable, secondary, or waste. Every physical quantity is posted through standard `stock.move` and `stock.move.line` records.
+- product category stock valuation account;
+- product category stock variation account;
+- stock valuation journal;
+- internal warehouse and production locations;
+- product tracking and lot/serial configuration when applicable.
 
-The Recoverable Value policy supports a percentage of the source carrying value or a documented target amount. Values are allocated across usable outputs using explicit weights; recycling costs are captured as an operational field but are not silently capitalized or expensed. Loss recognition is deferred by default and requires an accounting account plus valuation evidence before a journal entry can be posted.
+## Security and permissions
 
-## Full workflow
+The module defines three groups with least-privilege inheritance:
 
-Enable Advanced Disassembly on an Unbuild order, load components from a completed Manufacturing Order or the selected BoM, review the component snapshot, split each component into result quantities, assign lots and destinations, validate, and execute. Native Unbuild remains in use when Advanced Disassembly is disabled.
+| Group | Purpose |
+|---|---|
+| Advanced Disassembly User | Create and operate advanced disassembly documents |
+| Advanced Disassembly Cost Viewer | View source, output, and valuation amounts |
+| Advanced Disassembly Administrator | Configure the module, reverse operations, and manage controlled accounting actions |
 
-## Partial workflow
+Completed and reversed operations are immutable. Reversal creates new linked
+records, preserving the audit trail.
 
-Choose Partial, classify retained component quantities, select a distinct residual product and internal destination, then validate and execute. The residual assembly is created as a separate stock move with a stored retained-component snapshot.
+## Troubleshooting
 
-## Destinations and traceability
+### “Configure the Stock Valuation Account…”
 
-Good, repairable, and physically recovered scrap outcomes need a company-compatible internal destination. Missing and retained outcomes cannot have their own receiving location. Tracked recovered goods need a matching lot or serial. Source lot/serial is required for tracked finished products.
+Open the source product's category and verify Stock Valuation Account and Stock
+Variation Account. If the company override is used, verify that the selected
+account belongs to the current company.
 
-## Cost allocation and accounting
+### “Select a destination…”
 
-The addon allocates the source move's carrying value using the explicit reference weights on inspection results. Repairable results use the recorded recovery factor; residual assembly uses retained-result weights. Odoo 20's `product.value` API supplies manual move valuation for asset outputs. The source move and actual output move values are compared before completion.
+Recovered, repairable, and scrap results require a company-compatible internal
+location. Missing and retained results do not receive a normal output location.
 
-**Accounting validation status:** automated tests cover Standard, FIFO, and AVCO crossed with periodic and real-time valuation (six cases), including allocated-loss reconciliation and native Odoo valuation layers; real-time journal posting is used when the chart has the required valuation accounts. The suite also records (rather than silently capitalizes) any recovered-output valuation mismatch for review. Other localization charts and custom account configurations still need validation.
+### Quantities do not validate
 
-Odoo 20 in the inspected checkout does not expose the legacy `stock.scrap` model. The implementation uses native `stock.move.is_scrap` for recovered-scrap disposal.
+The result quantities for each component must fully account for the component
+snapshot. Use separate result lines for different products or conditions.
 
-## Odoo Apps packaging
+### Tracked products fail validation
 
-This repository is a dedicated single-addon repository. The addon directory is
-the repository root and the `20.0` branch matches the supported Odoo series.
-Generated Python caches, local databases, logs, and virtual environments are
-excluded from version control. The package includes an LGPL-3 manifest license,
-an application icon, a cover image, Arabic translations, access controls, and
-installation/upgrade documentation.
+Select the matching lot or serial. Serial-tracked finished products are handled
+one serial per operation, and each serial output quantity must be one.
 
-## Tests
+### A completed order cannot be edited
 
-Run the module tests on a dedicated database with Odoo's `--test-tags /ff_advanced_disassembly` runner. The automated suite covers default settings, allocation arithmetic, stock execution and exact stock deltas, missing/recovered scrap, valuation rollback, residual execution, MO component resolution, native Unbuild regression, immutability, audit visibility, cost access, tracked component lots/serials, company isolation, and the six-case accounting matrix. A separate shell smoke test covers concurrent execution claims. See `docs/QUALITY_GATES.md` for the exact run and evidence.
+This is intentional. Use the administrator-only reversal action and create a new
+corrective operation rather than rewriting posted stock or accounting history.
+
+## Installation
+
+### Command line
+
+```sh
+git clone --branch 20.0 \
+  ssh://git@github.com/FlousFlow/ff_advanced_disassembly.git
+
+# Add the cloned directory to --addons-path, then:
+./odoo-bin -d my_database -i ff_advanced_disassembly
+```
+
+### Odoo Apps interface
+
+1. Copy the addon into an active addons path.
+2. Activate developer mode.
+3. Open **Apps → Update Apps List**.
+4. Search for **Flous Flow Advanced Disassembly** and install it.
+
+## Tests and quality gates
+
+Run the focused test suite on a disposable Odoo 20 database:
+
+```sh
+./odoo-bin -d ff_advanced_disassembly_test \
+  --db_host=localhost --db_port=5432 --db_user=mohamedgamal \
+  --addons-path=/path/to/odoo/addons,/path/to/ff_advanced_disassembly-parent \
+  -u ff_advanced_disassembly --test-enable \
+  --test-tags /ff_advanced_disassembly --stop-after-init --no-http
+```
+
+The maintained test evidence covers installation/upgrade, full and partial
+execution, BOM and MO component resolution, stock deltas, valuation rollback,
+real-time accounting combinations, access control, company isolation,
+immutability, lots/serials, controlled reversal, and execution-claim
+concurrency. See `docs/QUALITY_GATES.md` for the recorded command and test
+boundaries.
 
 ## Upgrade notes
 
-Back up the database before upgrading. The addon adds fields to `mrp.unbuild` and creates component, result, residual, cost, and event records. Completed advanced orders are guarded against ordinary edits; corrections currently require a separately designed traceable corrective workflow.
+Back up the database before upgrading. The module adds fields to `mrp.unbuild`
+and creates component, result, residual, cost, and event records. Existing
+standard Unbuild orders continue to use native Odoo behavior when advanced mode
+is disabled.
 
-Recovery operations are likewise immutable after execution. The administrator-only **Reverse Operation** action creates new reversing stock moves linked to the original moves; it never edits a completed move in place. Optional recipe/yield master data, localization-specific accounting matrices for the new model, and browser/mobile regression evidence remain follow-up work before presenting the addon as a fully Apps-Store-complete recycling suite.
+Completed advanced records are intentionally immutable. Corrections should use
+the reversal workflow and a new traceable operation.
+
+## Known limits
+
+- Odoo Apps marketplace approval and automated review are external to this
+  repository.
+- Localization-specific account charts and every custom multi-company role
+  matrix require customer-side validation.
+- Physical warehouse execution, production load, and organization-specific
+  approval policies must be tested in staging before production use.
+- The module does not silently capitalize or expense undocumented losses.
+
+## Repository and release
+
+This is a dedicated single-addon repository. The supported branch is `20.0`,
+the manifest version is `20.0.1.0.1`, and generated caches/local runtime files
+are excluded from Git.

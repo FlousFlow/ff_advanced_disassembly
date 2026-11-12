@@ -116,3 +116,13 @@ release `.gitignore`, and the repository will publish only this addon on branch
 Apps review, marketplace approval, and localization-specific accounting checks
 remain external review boundaries.
 
+### 2026-11-12 — Apps cover and user documentation
+
+Replaced the illustrative cover with the supplied Odoo 20 Community / Flous Flow
+Advanced Disassembly artwork. Expanded the repository README, added a dedicated
+`docs/USER_GUIDE.md`, and refreshed `static/description/index.html` with the
+workflow, valuation policy, permissions, installation, and known-scope
+explanation expected by an Apps reviewer. The documentation deliberately keeps
+category-driven Odoo accounting as the default and describes the company-level
+valuation-difference account as an optional override.
+

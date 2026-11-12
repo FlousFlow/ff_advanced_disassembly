@@ -25,4 +25,13 @@ Observed result: `0 failed, 0 error(s) of 19 post-tests` (29 Odoo-reported tests
 
 ## Release status
 
-This is a locally installable Odoo 20 Community release candidate, not yet an Odoo Apps-ready release. The tested matrix passes on the local test chart; do not generalize that result to other localization charts or custom account setups. The live form was opened and populated on the dedicated test database. A genuine UI screenshot was captured during this session, but the current `static/description/cover.png` remains the prior illustrative cover because the screenshot could not be exported from the UI capture tool to a local asset. Replace it with an exported clean screenshot before submission. English/Arabic copy needs final human review. No repository, Apps account, scan, or publication action has been performed.
+The addon is packaged as a dedicated public GitHub repository at
+`FlousFlow/ff_advanced_disassembly`, with the addon at repository root on the
+`20.0` branch and version tag `20.0.1.0.1`. The cover image and expanded Apps
+description are included in `static/description/`. A clean clone of the GitHub
+branch was installed successfully on a disposable Odoo 20 database.
+
+The tested matrix passes on the local test chart; do not generalize that result
+to other localization charts or custom account setups. Odoo Apps marketplace
+approval, automated review, customer-specific accounting, production load, and
+physical warehouse execution remain external validation boundaries.
