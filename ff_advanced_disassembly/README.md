@@ -25,7 +25,8 @@ replacing the standard Odoo flow when advanced mode is disabled.
 | Supported language | English and Arabic translation included |
 
 The repository is intentionally a dedicated single-addon repository. The addon
-is at the repository root and the supported Git ref is `20.0`.
+is under the `ff_advanced_disassembly/` folder at the repository root, as
+required by the Odoo Apps scanner, and the supported Git ref is `20.0`.
 
 ## Main capabilities
 
@@ -209,7 +210,7 @@ corrective operation rather than rewriting posted stock or accounting history.
 git clone --branch 20.0 \
   ssh://git@github.com/FlousFlow/ff_advanced_disassembly.git
 
-# Add the cloned directory to --addons-path, then:
+# Add the cloned repository directory to --addons-path, then:
 ./odoo-bin -d my_database -i ff_advanced_disassembly
 ```
 
@@ -262,5 +263,5 @@ the reversal workflow and a new traceable operation.
 ## Repository and release
 
 This is a dedicated single-addon repository. The supported branch is `20.0`,
-the manifest version is `20.0.1.0.2`, and generated caches/local runtime files
+the manifest version is `20.0.1.0.3`, and generated caches/local runtime files
 are excluded from Git.
