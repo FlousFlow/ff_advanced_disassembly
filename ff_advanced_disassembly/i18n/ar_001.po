@@ -209,6 +209,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:ff_advanced_disassembly.field_mrp_unbuild__ff_advanced_mode
 #: model:ir.module.module,shortdesc:base.module_ff_advanced_disassembly
 #: model_terms:ir.ui.view,arch_db:ff_advanced_disassembly.res_config_settings_view_form_advanced_disassembly
+#: model:res.groups.privilege,name:ff_advanced_disassembly.res_groups_privilege_advanced_disassembly
 msgid "Advanced Disassembly"
 msgstr "تفكيك متقدم"
 

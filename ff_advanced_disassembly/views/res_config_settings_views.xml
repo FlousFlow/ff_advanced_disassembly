@@ -5,7 +5,7 @@
         <field name="inherit_id" ref="mrp.res_config_settings_view_form"/>
         <field name="arch" type="xml">
             <xpath expr="//app[@name='mrp']/block[1]" position="inside">
-                <setting string="Advanced Disassembly" groups="mrp.group_mrp_manager" help="Configure partial disassembly and the approved allocation and destination policies.">
+                <setting string="Advanced Disassembly" groups="ff_advanced_disassembly.group_ff_disassembly_administrator" help="Configure partial disassembly and the approved allocation and destination policies.">
                     <field name="ff_partial_disassembly_enabled"/>
                     <div class="content-group">
                         <field name="ff_require_manager_approval"/>

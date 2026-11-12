@@ -367,22 +367,13 @@ class RecoveryOperation(models.Model):
         return True
 
     def _has_operational_access(self):
-        return any(self.env.user.has_group(group) for group in (
-            "mrp.group_mrp_user",
-            "ff_advanced_disassembly.group_ff_disassembly_user",
-        ))
+        return self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_user")
 
     def _has_manager_access(self):
-        return any(self.env.user.has_group(group) for group in (
-            "mrp.group_mrp_manager",
-            "ff_advanced_disassembly.group_ff_disassembly_administrator",
-        ))
+        return self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_administrator")
 
     def _has_financial_access(self):
         return any(self.env.user.has_group(group) for group in (
-            "account.group_account_user",
-            "account.group_account_manager",
-            "mrp.group_mrp_manager",
             "ff_advanced_disassembly.group_ff_disassembly_cost_viewer",
             "ff_advanced_disassembly.group_ff_disassembly_administrator",
         ))

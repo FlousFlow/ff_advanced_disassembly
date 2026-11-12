@@ -10,7 +10,7 @@
             <xpath expr="//header" position="inside">
                 <button name="action_validate" string="Validate Inspection" type="object" class="oe_highlight" invisible="not ff_advanced_mode or ff_workflow_state != 'draft' or state == 'done'"/>
                 <button name="action_unbuild" string="Execute Disassembly" type="object" class="oe_highlight" invisible="not ff_advanced_mode or ff_workflow_state != 'ready' or state == 'done'"/>
-                <button name="action_reverse" string="عكس العملية" type="object" class="btn-secondary" confirm="سيتم إنشاء حركات مخزنية وقيد تقييم عكسي للعملية. هل تريد المتابعة؟" invisible="not ff_advanced_mode or state != 'done' or ff_workflow_state != 'done'" groups="mrp.group_mrp_manager"/>
+                <button name="action_reverse" string="عكس العملية" type="object" class="btn-secondary" confirm="سيتم إنشاء حركات مخزنية وقيد تقييم عكسي للعملية. هل تريد المتابعة؟" invisible="not ff_advanced_mode or state != 'done' or ff_workflow_state != 'done'" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
             </xpath>
             <xpath expr="//header/field[@name='state']" position="attributes">
                 <attribute name="invisible">ff_advanced_mode</attribute>
@@ -36,14 +36,14 @@
             </xpath>
             <xpath expr="//sheet/group" position="before">
                 <group>
-                    <field name="ff_advanced_mode" groups="mrp.group_mrp_user"/>
+                    <field name="ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_user"/>
                     <field name="ff_disassembly_type" invisible="not ff_advanced_mode" help="كامل يفك المنتج بالكامل، وجزئي يحتفظ بجزء منه كمنتج متبقٍ."/>
                     <field name="ff_recovery_percentage" invisible="1"/>
                     <label for="ff_output_cost_value" string="قيمة تكلفة المخرجات" invisible="not ff_advanced_mode"/>
                     <field name="ff_output_cost_value" nolabel="1" widget="monetary" options="{'currency_field': 'company_currency_id'}" invisible="not ff_advanced_mode" help="إجمالي القيمة النقدية التي ستُحمّل على المنتجات الناتجة من أمر التفكيك."/>
                     <field name="ff_expected_cost_difference" string="فرق التكلفة المتوقع" widget="monetary" invisible="not ff_advanced_mode" readonly="1" help="قيمة المنتج المصدر ناقص قيمة تكلفة المخرجات المدخلة."/>
-                    <field name="ff_workflow_state" widget="badge" invisible="not ff_advanced_mode" groups="mrp.group_mrp_user"/>
-                    <field name="ff_return_picking_id" invisible="not ff_advanced_mode" groups="mrp.group_mrp_manager"/>
+                    <field name="ff_workflow_state" widget="badge" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_user"/>
+                    <field name="ff_return_picking_id" invisible="not ff_advanced_mode" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                 </group>
             </xpath>
             <xpath expr="//sheet" position="inside">

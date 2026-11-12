@@ -7,8 +7,8 @@
                 <field name="name"/>
                 <field name="operation_type"/>
                 <field name="company_id" groups="base.group_multi_company"/>
-                <field name="input_carrying_value" groups="account.group_account_user,mrp.group_mrp_manager"/>
-                <field name="recoverable_value" groups="account.group_account_user,mrp.group_mrp_manager"/>
+                <field name="input_carrying_value" groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator"/>
+                <field name="recoverable_value" groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                 <field name="state" widget="badge"/>
                 <field name="executed_at"/>
             </list>
@@ -22,7 +22,7 @@
                 <header>
                     <button name="action_prepare" string="Validate" type="object" class="oe_highlight" data-hotkey="v" invisible="state != 'draft'"/>
                     <button name="action_execute" string="Execute Recovery" type="object" class="oe_highlight" data-hotkey="e" invisible="state != 'ready'"/>
-                    <button name="action_reverse" string="Reverse Operation" type="object" invisible="state != 'done'" confirm="This creates new reversing stock moves. Continue?" groups="mrp.group_mrp_manager"/>
+                    <button name="action_reverse" string="Reverse Operation" type="object" invisible="state != 'done'" confirm="This creates new reversing stock moves. Continue?" groups="ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                     <field name="state" widget="statusbar" statusbar_visible="draft,ready,done"/>
                 </header>
                 <sheet>
@@ -62,7 +62,7 @@
                                     <field name="loss_class" optional="hide" invisible="output_type != 'waste'"/>
                                     <field name="destination_location_id"/>
                                     <field name="lot_id" optional="hide"/>
-                                    <field name="allocated_value" groups="account.group_account_user,mrp.group_mrp_manager"/>
+                                    <field name="allocated_value" groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator"/>
                                 </list>
                             </field>
                         </page>
@@ -73,7 +73,7 @@
                                 <field name="recoverable_target_amount" invisible="recoverable_value_mode != 'amount'"/>
                             </group>
                         </page>
-                        <page string="Valuation Reconciliation" groups="account.group_account_user,mrp.group_mrp_manager" invisible="state not in ['done', 'reversed']">
+                        <page string="Valuation Reconciliation" groups="ff_advanced_disassembly.group_ff_disassembly_cost_viewer,ff_advanced_disassembly.group_ff_disassembly_administrator" invisible="state not in ['done', 'reversed']">
                             <group>
                                 <field name="input_carrying_value"/>
                                 <field name="recoverable_value"/>

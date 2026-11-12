@@ -102,10 +102,13 @@ Before clicking **Validate Inspection** or **Validate**:
 
 - Review the company Advanced Disassembly settings.
 - Decide whether a shared valuation-difference account is required.
-- Assign **Manufacturing User** to operators who create and execute operations.
-- Assign **Manufacturing Administrator** only to users who configure the module
-  or reverse completed operations.
-- Assign **Accounting User** to users who need monetary valuation details.
-- Legacy Advanced Disassembly groups are migration aliases; do not use them for
-  new user provisioning.
+- Assign **Advanced Disassembly User** to operators who create and execute
+  operations.
+- Assign **Advanced Disassembly Cost Viewer** to users who also need monetary
+  valuation details.
+- Assign **Advanced Disassembly Administrator** only to users who configure the
+  module or reverse completed operations.
+- These roles appear in the standard Odoo Users form under **Supply Chain →
+  Advanced Disassembly**. Native Manufacturing/Accounting roles alone do not
+  grant this module access.
 - Test the workflow on a duplicated database before production use.

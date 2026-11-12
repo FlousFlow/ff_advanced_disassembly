@@ -161,3 +161,14 @@ The output cost field is explicitly rendered without an automatic field label so
 the Arabic form label is shown once and the monetary value remains beside it in
 the standard Odoo group grid.
 
+### 2026-11-12 — Dedicated Advanced Disassembly permission scope
+
+The addon now exposes a native Odoo 20 `res.groups.privilege` scope named
+Advanced Disassembly under Supply Chain. Its User, Cost Viewer, and
+Administrator roles are explicit module permissions; each role implies only the
+native Manufacturing capability required by the underlying stock/MRP document.
+ACLs, protected valuation fields, reversal/configuration buttons, and server-side
+access checks now use these addon roles, so native Manufacturing or Accounting
+roles alone no longer grant this addon. Existing group external IDs are retained
+for upgrade compatibility.
+
