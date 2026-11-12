@@ -1,6 +1,6 @@
 {
     "name": "Advanced Disassembly",
-    "version": "20.0.1.0.6",
+    "version": "20.0.1.0.7",
     "summary": "Traceable component recovery and residual stock handling for manufacturing unbuild orders",
     "description": """
 Advanced Disassembly for Odoo 20 Community.

@@ -40,7 +40,7 @@
                     <field name="ff_disassembly_type" invisible="not ff_advanced_mode" help="كامل يفك المنتج بالكامل، وجزئي يحتفظ بجزء منه كمنتج متبقٍ."/>
                     <field name="ff_recovery_percentage" invisible="1"/>
                     <label for="ff_output_cost_value" string="قيمة تكلفة المخرجات" invisible="not ff_advanced_mode"/>
-                    <field name="ff_output_cost_value" widget="monetary" options="{'currency_field': 'company_currency_id'}" invisible="not ff_advanced_mode" help="إجمالي القيمة النقدية التي ستُحمّل على المنتجات الناتجة من أمر التفكيك."/>
+                    <field name="ff_output_cost_value" nolabel="1" widget="monetary" options="{'currency_field': 'company_currency_id'}" invisible="not ff_advanced_mode" help="إجمالي القيمة النقدية التي ستُحمّل على المنتجات الناتجة من أمر التفكيك."/>
                     <field name="ff_expected_cost_difference" string="فرق التكلفة المتوقع" widget="monetary" invisible="not ff_advanced_mode" readonly="1" help="قيمة المنتج المصدر ناقص قيمة تكلفة المخرجات المدخلة."/>
                     <field name="ff_workflow_state" widget="badge" invisible="not ff_advanced_mode" groups="mrp.group_mrp_user"/>
                     <field name="ff_return_picking_id" invisible="not ff_advanced_mode" groups="mrp.group_mrp_manager"/>

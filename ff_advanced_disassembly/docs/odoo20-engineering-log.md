@@ -155,3 +155,9 @@ configuration actions use `mrp.group_mrp_manager`, and valuation details use the
 native Accounting user role. The original addon groups remain only as migration
 compatibility aliases for existing databases.
 
+### 2026-11-12 — Output cost label cleanup
+
+The output cost field is explicitly rendered without an automatic field label so
+the Arabic form label is shown once and the monetary value remains beside it in
+the standard Odoo group grid.
+
