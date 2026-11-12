@@ -263,5 +263,5 @@ the reversal workflow and a new traceable operation.
 ## Repository and release
 
 This is a dedicated single-addon repository. The supported branch is `20.0`,
-the manifest version is `20.0.1.0.3`, and generated caches/local runtime files
+the manifest version is `20.0.1.0.4`, and generated caches/local runtime files
 are excluded from Git.
