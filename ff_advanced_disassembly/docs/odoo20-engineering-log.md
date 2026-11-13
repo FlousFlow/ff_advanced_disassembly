@@ -181,3 +181,12 @@ labelled separately. Existing posted moves remain immutable; only new entries
 use the descriptive reference. A real-time accounting regression now verifies
 one posted move with the expected reference and line descriptions.
 
+### 2026-11-13 — Consolidated accounting context fix
+
+The final consolidated accounting pass now explicitly clears the temporary
+deferred-accounting context used while completing each stock move. Without this
+reset, every move was filtered out of consolidated journal creation and the
+operation incorrectly reported missing posted valuation entries. A live Odoo
+20 smoke flow completed `UB/00042` with a single posted journal
+`STJ/2026/11/0010` and a two-line net entry for the 5.00 valuation difference.
+

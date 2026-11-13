@@ -457,6 +457,12 @@ class MrpUnbuild(models.Model):
         # one account move is posted for the complete disassembly.
         all_execution_moves.with_context(
             ff_consolidate_disassembly_accounting=True,
+            # The moves were completed with deferred native accounting so the
+            # individual callbacks could not create duplicate entries.  Clear
+            # that flag for the final consolidated pass, otherwise
+            # ``_should_create_account_move`` skips every move and the
+            # reconciliation guard reports missing valuation entries.
+            ff_defer_disassembly_accounting=False,
             ff_disassembly_reference=self._ff_accounting_reference(),
         )._create_account_move()
         self._ff_check_accounting_reconciliation(all_execution_moves, allocation["loss"])
