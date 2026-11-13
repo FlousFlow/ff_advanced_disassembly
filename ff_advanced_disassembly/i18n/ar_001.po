@@ -214,6 +214,18 @@ msgid "Advanced Disassembly"
 msgstr "تفكيك متقدم"
 
 #. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Advanced Disassembly | Operation: %(operation)s | Product: %(product)s | Quantity: %(quantity)s"
+msgstr "تفكيك متقدم | العملية: %(operation)s | المنتج: %(product)s | الكمية: %(quantity)s"
+
+#. module: ff_advanced_disassembly
+#. odoo-python
+#: code:addons/ff_advanced_disassembly/models/mrp_unbuild.py:0
+msgid "Reversal of Advanced Disassembly | Operation: %(operation)s | Product: %(product)s | Quantity: %(quantity)s"
+msgstr "عكس التفكيك المتقدم | العملية: %(operation)s | المنتج: %(product)s | الكمية: %(quantity)s"
+
+#. module: ff_advanced_disassembly
 #: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_company__ff_disassembly_variance_account_id
 #: model:ir.model.fields,field_description:ff_advanced_disassembly.field_res_config_settings__ff_disassembly_variance_account_id
 msgid "Disassembly Valuation Difference Account"

@@ -40,9 +40,11 @@ class StockMove(models.Model):
 
         currency = self.company_id.currency_id
         aml_vals_list = []
-        reference = ", ".join(sorted(set(self.mapped("reference"))))
-        if len(reference) > 43:
-            reference = reference[:40] + "..."
+        reference = self.env.context.get("ff_disassembly_reference")
+        if not reference:
+            reference = ", ".join(sorted(set(self.mapped("reference"))))
+            if len(reference) > 43:
+                reference = reference[:40] + "..."
         for account_id, totals in aml_by_account.items():
             net_balance = currency.round(totals["debit"] - totals["credit"])
             if currency.is_zero(net_balance):

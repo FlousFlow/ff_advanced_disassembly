@@ -119,7 +119,9 @@ technical allocation-weight field for the normal workflow.
 For advanced disassembly, source, output, residual, and scrap valuation moves
 are consolidated into one balanced journal entry for the operation. The entry
 contains the net stock valuation effect and the configured valuation-difference
-account when a difference remains.
+account when a difference remains. Its reference and journal-line descriptions
+identify the advanced disassembly operation, source product, and quantity so
+the accounting entry can be traced directly back to the warehouse document.
 
 The valuation-difference account follows this order:
 

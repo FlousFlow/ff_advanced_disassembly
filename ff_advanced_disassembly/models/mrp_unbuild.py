@@ -457,6 +457,7 @@ class MrpUnbuild(models.Model):
         # one account move is posted for the complete disassembly.
         all_execution_moves.with_context(
             ff_consolidate_disassembly_accounting=True,
+            ff_disassembly_reference=self._ff_accounting_reference(),
         )._create_account_move()
         self._ff_check_accounting_reconciliation(all_execution_moves, allocation["loss"])
         self.sudo().with_context(ff_internal_write=True).write({
@@ -582,6 +583,7 @@ class MrpUnbuild(models.Model):
         # one account move is posted for the complete reversal.
         reversal_moves.with_context(
             ff_consolidate_disassembly_accounting=True,
+            ff_disassembly_reference=self._ff_accounting_reference(reversal=True),
         )._create_account_move()
         reversal_account_moves = reversal_moves.mapped("account_move_id").filtered(lambda move: move.state == "posted")
         original_account_moves = original_moves.mapped("account_move_id").filtered(lambda move: move.state == "posted")
@@ -618,6 +620,24 @@ class MrpUnbuild(models.Model):
     def _ff_has_manager_access(self):
         """Reverse/configure actions require the explicit module administrator role."""
         return self.env.user.has_group("ff_advanced_disassembly.group_ff_disassembly_administrator")
+
+    def _ff_accounting_reference(self, reversal=False):
+        """Build one human-readable reference for the operation's journal entry."""
+        self.ensure_one()
+        values = {
+            "operation": self.name,
+            "product": self.product_id.display_name,
+            "quantity": format(self.product_qty, ".2f"),
+        }
+        if reversal:
+            return _(
+                "Reversal of Advanced Disassembly | Operation: %(operation)s | Product: %(product)s | Quantity: %(quantity)s",
+                **values,
+            )
+        return _(
+            "Advanced Disassembly | Operation: %(operation)s | Product: %(product)s | Quantity: %(quantity)s",
+            **values,
+        )
 
     def _ff_check_operational_access(self):
         if not self._ff_has_operational_access():

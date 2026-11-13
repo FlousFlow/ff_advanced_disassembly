@@ -172,3 +172,12 @@ access checks now use these addon roles, so native Manufacturing or Accounting
 roles alone no longer grant this addon. Existing group external IDs are retained
 for upgrade compatibility.
 
+### 2026-11-13 — Traceable disassembly journal references
+
+Consolidated journals created by advanced disassembly now use one descriptive
+reference containing the operation number, source product, and quantity. The
+same reference is copied to every journal line, and reversal journals are
+labelled separately. Existing posted moves remain immutable; only new entries
+use the descriptive reference. A real-time accounting regression now verifies
+one posted move with the expected reference and line descriptions.
+

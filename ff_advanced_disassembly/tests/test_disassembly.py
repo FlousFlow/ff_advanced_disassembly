@@ -96,6 +96,28 @@ class TestAdvancedDisassembly(TransactionCase):
         })
         self.assertTrue(currency.is_zero(legacy_order._ff_output_value_for_source(15.0) - 15.0))
 
+    def test_accounting_reference_identifies_disassembly_operation(self):
+        product = self.env["product.product"].create({"name": "Reference Test Product"})
+        order = self.env["mrp.unbuild"].create({
+            "product_id": product.id,
+            "product_qty": 2.0,
+            "company_id": self.env.company.id,
+            "location_id": self.env["stock.warehouse"].search(
+                [("company_id", "=", self.env.company.id)], limit=1,
+            ).lot_stock_id.id,
+            "location_dest_id": self.env["stock.warehouse"].search(
+                [("company_id", "=", self.env.company.id)], limit=1,
+            ).lot_stock_id.id,
+            "ff_advanced_mode": True,
+        })
+        reference = order._ff_accounting_reference()
+        reversal_reference = order._ff_accounting_reference(reversal=True)
+        self.assertIn(order.name, reference)
+        self.assertIn(product.display_name, reference)
+        self.assertIn("2.00", reference)
+        self.assertIn("Advanced Disassembly", reference)
+        self.assertIn("Reversal of Advanced Disassembly", reversal_reference)
+
     def test_allocation_includes_assets_residual_and_losses(self):
         currency = self.env.company.currency_id
         good = SimpleNamespace(condition="good", reference_weight=400.0, recovery_factor=1.0)
@@ -485,7 +507,14 @@ class TestDisassemblyAccounting(TestBomPriceCommon):
         native_moves = order.consume_line_ids | order.produce_line_ids
         self.assertTrue(native_moves.filtered(lambda move: move.product_id == finished))
         if valuation == "real_time":
-            self.assertTrue(native_moves.account_move_id.filtered(lambda move: move.state == "posted"))
+            account_moves = native_moves.account_move_id.filtered(lambda move: move.state == "posted")
+            self.assertTrue(account_moves)
+            self.assertEqual(len(account_moves), 1)
+            journal_entry = account_moves[0]
+            self.assertIn(order.name, journal_entry.ref)
+            self.assertIn(finished.display_name, journal_entry.ref)
+            self.assertIn("50.00", journal_entry.ref)
+            self.assertTrue(all(order.name in line.name for line in journal_entry.line_ids))
 
     def test_real_time_and_periodic_standard_fifo_avco_loss_reconciliation(self):
         for cost_method in ("standard", "fifo", "average"):
